@@ -22,3 +22,7 @@ assembly
 compile
 assembly
 package
+test
+compile
+package
+assembly

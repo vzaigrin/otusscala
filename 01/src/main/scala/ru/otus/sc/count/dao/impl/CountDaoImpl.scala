@@ -2,7 +2,7 @@ package ru.otus.sc.count.dao.impl
 
 import ru.otus.sc.count.dao.CountDao
 
-// Имплементация сервиса DAO Count
+// Имплементация DAO для сервиса Count
 object CountDaoImpl extends CountDao {
   private var cnt: Int = 0
 

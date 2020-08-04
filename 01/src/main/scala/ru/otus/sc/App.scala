@@ -1,31 +1,36 @@
 package ru.otus.sc
 
+import ru.otus.sc.count.dao.CountDao
 import ru.otus.sc.count.model.{CountRequest, CountResponse}
 import ru.otus.sc.count.service.CountService
 import ru.otus.sc.count.dao.impl.CountDaoImpl
 import ru.otus.sc.count.service.impl.CountServiceImpl
+import ru.otus.sc.echo.dao.EchoDao
 import ru.otus.sc.echo.dao.impl.EchoDaoImpl
 import ru.otus.sc.echo.model.{EchoRequest, EchoResponse}
 import ru.otus.sc.echo.service.EchoService
 import ru.otus.sc.echo.service.impl.EchoServiceImpl
+import ru.otus.sc.fib.dao.FibDao
 import ru.otus.sc.fib.dao.impl.FibDaoImpl
 import ru.otus.sc.fib.model.{FibRequest, FibResponse}
 import ru.otus.sc.fib.service.FibService
 import ru.otus.sc.fib.service.impl.FibServiceImpl
+import ru.otus.sc.greet.dao.GreetingDao
 import ru.otus.sc.greet.dao.impl.GreetingDaoImpl
 import ru.otus.sc.greet.model.{GreetRequest, GreetResponse}
 import ru.otus.sc.greet.service.GreetingService
 import ru.otus.sc.greet.service.impl.GreetingServiceImpl
+import ru.otus.sc.key.dao.KeyDao
 import ru.otus.sc.key.dao.impl.KeyDaoImpl
 import ru.otus.sc.key.model.{KeyRequest, KeyResponse}
 import ru.otus.sc.key.service.KeyService
 import ru.otus.sc.key.service.impl.KeyServiceImpl
+import ru.otus.sc.reverse.dao.ReverseDao
 import ru.otus.sc.reverse.dao.impl.ReverseDaoImpl
 import ru.otus.sc.reverse.model.{ReverseRequest, ReverseResponse}
 import ru.otus.sc.reverse.service.ReverseService
 import ru.otus.sc.reverse.service.impl.ReverseServiceImpl
 
-// трейт со всеми методами
 trait App {
   def greet(request: GreetRequest): GreetResponse
   def count(request: CountRequest): CountResponse
@@ -35,7 +40,6 @@ trait App {
   def reverse(request: ReverseRequest): ReverseResponse
 }
 
-//
 object App {
   private class AppImpl(
       greeting: GreetingService,
@@ -54,23 +58,23 @@ object App {
   }
 
   def apply(): App = {
-    val greetingDao     = new GreetingDaoImpl
-    val greetingService = new GreetingServiceImpl(greetingDao)
+    val greetingDao: GreetingDao         = new GreetingDaoImpl
+    val greetingService: GreetingService = new GreetingServiceImpl(greetingDao)
 
-    val countDao     = CountDaoImpl
-    val countService = new CountServiceImpl(countDao)
+    val countDao: CountDao         = CountDaoImpl
+    val countService: CountService = new CountServiceImpl(countDao)
 
-    val echoDao     = new EchoDaoImpl
-    val echoService = new EchoServiceImpl(echoDao)
+    val echoDao: EchoDao         = new EchoDaoImpl
+    val echoService: EchoService = new EchoServiceImpl(echoDao)
 
-    val keyDao     = KeyDaoImpl
-    val keyService = new KeyServiceImpl(keyDao)
+    val keyDao: KeyDao         = KeyDaoImpl
+    val keyService: KeyService = new KeyServiceImpl(keyDao)
 
-    val fibDao     = new FibDaoImpl()
-    val fibService = new FibServiceImpl(fibDao)
+    val fibDao: FibDao         = new FibDaoImpl()
+    val fibService: FibService = new FibServiceImpl(fibDao)
 
-    val reverseDao     = new ReverseDaoImpl()
-    val reverseService = new ReverseServiceImpl(reverseDao)
+    val reverseDao: ReverseDao         = new ReverseDaoImpl()
+    val reverseService: ReverseService = new ReverseServiceImpl(reverseDao)
 
     new AppImpl(greetingService, countService, echoService, keyService, fibService, reverseService)
   }
