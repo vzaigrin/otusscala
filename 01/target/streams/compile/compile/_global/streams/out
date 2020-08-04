@@ -1,7 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/vz250004/Projects/otusscala/01/src/main/scala/ru/otus/sc/Main.scala:10:30: invalid escape at terminal index 15 in "GreetRequest(\\\". Use \\ for literal \.[0m
-[0m[[0m[31merror[0m] [0m[0m    println(s"GreetRequest(\\\"John Doe\\\"): $greetResponse")[0m
-[0m[[0m[31merror[0m] [0m[0m                             ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/vz250004/Projects/otusscala/01/src/main/scala/ru/otus/sc/Main.scala:10:37: not found: value Doe[0m
-[0m[[0m[31merror[0m] [0m[0m    println(s"GreetRequest(\\\"John Doe\\\"): $greetResponse")[0m
-[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
-[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

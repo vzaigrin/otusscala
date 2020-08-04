@@ -1,1 +1,0 @@
-["sbt.Task[scala.collection.immutable.Map[java.lang.String, scala.collection.Seq[scala.Tuple2[java.nio.file.Path, sbt.nio.FileStamp]]]]",{"2.13.3":{"hashes":[["/Users/vz250004/Projects/otusscala/01/src/test/scala/ru/otus/sc/Test.scala","fb3a8a09f6bcf4c8727cacb1537f552d212de78a"]],"lastModifiedTimes":[]}}]
