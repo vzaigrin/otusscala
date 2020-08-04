@@ -1,8 +1,14 @@
 *.class
 *.log
+01/.idea
 01/project/project
 01/project/target
-01/.idea
 01/target/classes
-01/target/update
+01/target/scala-2.13/classes
+01/target/scala-2.13/test-classes
+01/target/scala-2.13/update
+01/target/scala-2.13/resolution-cache
 01/target/streams
+01/target/test-reports
+01/target/update
+01/target/.history
