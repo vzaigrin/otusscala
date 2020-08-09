@@ -7,5 +7,5 @@ import ru.otus.sc.echo.service.EchoService
 // Имплементация сервиса Echo
 class EchoServiceImpl(dao: EchoDao) extends EchoService {
   override def echo(request: EchoRequest): EchoResponse =
-    EchoResponse(s"${dao.echoPrefix}${request.request}${dao.echoPostfix}")
+    EchoResponse(request.request)
 }

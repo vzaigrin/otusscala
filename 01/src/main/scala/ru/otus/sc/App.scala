@@ -3,7 +3,7 @@ package ru.otus.sc
 import ru.otus.sc.count.dao.CountDao
 import ru.otus.sc.count.model.{CountRequest, CountResponse}
 import ru.otus.sc.count.service.CountService
-import ru.otus.sc.count.dao.impl.CountDaoImpl
+import ru.otus.sc.count.dao.impl.{CountDaoImpl, CountDaoImplS}
 import ru.otus.sc.count.service.impl.CountServiceImpl
 import ru.otus.sc.echo.dao.EchoDao
 import ru.otus.sc.echo.dao.impl.EchoDaoImpl

@@ -2,7 +2,7 @@ package ru.otus.sc
 
 import org.scalatest.funsuite.AnyFunSuite
 import ru.otus.sc.count.dao.CountDao
-import ru.otus.sc.count.dao.impl.CountDaoImpl
+import ru.otus.sc.count.dao.impl.{CountDaoImpl, CountDaoImplS}
 import ru.otus.sc.count.model.{CountRequest, CountResponse}
 import ru.otus.sc.count.service.CountService
 import ru.otus.sc.count.service.impl.CountServiceImpl
@@ -56,6 +56,17 @@ class Test extends AnyFunSuite {
     countDao.count
 
     val result: Int = countDao.count
+
+    assert(result === 4)
+  }
+
+  test("Count Dao Singleton") {
+    val countDaoS: CountDaoImplS = new CountDaoImplS()
+    countDaoS.getInstance.count
+    countDaoS.getInstance.count
+    countDaoS.getInstance.count
+
+    val result: Int = countDaoS.getInstance.count
 
     assert(result === 4)
   }
