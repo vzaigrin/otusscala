@@ -1,2 +1,2 @@
-# otusscala
-Home works for course Scala from Otus
+# Scala-разработчик
+Home works for course [Scala-разработчик](https://otus.ru/lessons/scala) from Otus
