@@ -61,12 +61,12 @@ class Test extends AnyFunSuite {
   }
 
   test("Count Dao Singleton") {
-    val countDaoS: CountDaoImplS = new CountDaoImplS()
-    countDaoS.getInstance.count
-    countDaoS.getInstance.count
-    countDaoS.getInstance.count
+    val countDaoS: CountDao = new CountDaoImplS()
+    countDaoS.count
+    countDaoS.count
+    countDaoS.count
 
-    val result: Int = countDaoS.getInstance.count
+    val result: Int = countDaoS.count
 
     assert(result === 4)
   }

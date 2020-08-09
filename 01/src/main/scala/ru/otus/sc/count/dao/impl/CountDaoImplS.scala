@@ -6,15 +6,14 @@ import ru.otus.sc.count.dao.CountDao
 // Реализован паттерн Singleton
 class CountDaoImplS extends CountDao {
   private object SingletonHolder {
-    val instance: CountDao = new CountDaoImplS
+    val instance: CountDaoImplS = new CountDaoImplS
   }
-
-  def getInstance: CountDao = SingletonHolder.instance
 
   private var cnt: Int = 0
 
   override def count: Int = {
-    cnt += 1
-    cnt
+    def getInstance: CountDaoImplS = SingletonHolder.instance
+    getInstance.cnt += 1
+    getInstance.cnt
   }
 }
