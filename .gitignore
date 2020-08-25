@@ -1,6 +1,11 @@
 *.class
 *.log
+.DS_Store
 01/.idea
 01/project/project
 01/project/target
 01/target
+04/.idea
+04/project/project
+04/project/target
+04/target
