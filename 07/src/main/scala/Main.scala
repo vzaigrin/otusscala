@@ -139,12 +139,11 @@ object Main {
   }
 
   // Функция возвращает список всех пользователей
-  def getAllUsers(app: App): Seq[User] = {
+  def getAllUsers(app: App): Seq[User] =
     (app.findUsers(FindUsersRequest.All()) match {
       case FindUsersResponse.Result(users) => users
       case _                               => Seq.empty
     }).sorted
-  }
 
   // Функция создаёт автора по параметрам и возвращает его
   def createAuthor(app: App, request: CreateAuthorRequest): Author =
@@ -162,12 +161,11 @@ object Main {
   }
 
   // Функция возвращает список всех книг
-  def getAllBooks(app: App): Seq[Book] = {
+  def getAllBooks(app: App): Seq[Book] =
     (app.findBooks(FindBooksRequest.All()) match {
       case FindBooksResponse.Result(books) => books
       case _                               => Seq.empty
     }).sorted
-  }
 
   // Функция возвращает список всех авторов по году книги
   def findAuthorsByBookYear(app: App, title: String): Seq[Author] = {
