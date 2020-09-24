@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="sbt: org.scalameta:scalameta_2.13:4.3.20:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scalameta/scalameta_2.13/4.3.20/scalameta_2.13-4.3.20.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

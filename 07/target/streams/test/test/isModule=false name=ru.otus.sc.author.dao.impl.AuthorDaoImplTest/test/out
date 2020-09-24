@@ -1,0 +1,15 @@
+[0m[[0m[0minfo[0m] [0m[0m[32mAuthorDaoImplTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mAuthorDaoImplTest[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  createAuthor[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - create any number of authors[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  getAuthor[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - get unknown author[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - get known author[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  updateAuthor[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - update unknown author - keep all authors the same[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - update known author - keep other authors the same[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  deleteAuthor[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - delete unknown author - keep all authors the same[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m  - delete known author - keep other authors the same[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- findByLastName[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- findAll[0m[0m

@@ -1,0 +1,8 @@
+#Successful Tests
+#Wed Sep 23 21:45:27 MSK 2020
+ru.otus.sc.user.dao.map.UserDaoMapImplTest=1600886727074
+ru.otus.sc.book.service.impl.BookServiceImplTest=1600886726694
+ru.otus.sc.author.dao.impl.AuthorDaoImplTest=1600886727045
+ru.otus.sc.author.service.impl.AuthorServiceImplTest=1600886726640
+ru.otus.sc.user.service.impl.UserServiceImplTest=1600886726647
+ru.otus.sc.book.dao.impl.BookDaoImplTest=1600886727427
