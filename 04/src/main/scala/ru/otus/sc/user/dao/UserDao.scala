@@ -1,8 +1,7 @@
 package ru.otus.sc.user.dao
 
 import java.util.UUID
-
-import ru.otus.sc.user.model.User
+import ru.otus.sc.user.model.{Role, User}
 
 trait UserDao {
   def createUser(user: User): User
@@ -10,5 +9,6 @@ trait UserDao {
   def updateUser(user: User): Option[User]
   def deleteUser(userId: UUID): Option[User]
   def findByLastName(lastName: String): Seq[User]
+  def findByRole(role: Role): Seq[User]
   def findAll(): Seq[User]
 }
