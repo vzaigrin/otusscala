@@ -4,7 +4,7 @@ sealed trait FindUsersRequest
 object FindUsersRequest {
   case class ByLastName(lastName: String) extends FindUsersRequest
   case class ByRole(role: Role)           extends FindUsersRequest
-  case class All()                        extends FindUsersRequest
+  case object All                         extends FindUsersRequest
 }
 
 sealed trait FindUsersResponse
