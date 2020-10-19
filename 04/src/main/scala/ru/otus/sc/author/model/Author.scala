@@ -11,9 +11,6 @@ case class Author(
 }
 
 object Author {
-  def apply() = new Author(None, "UNKNOWN", "UNKNOWN")
-  implicit def ordering[T <: Author]: Ordering[T] =
-    (a: T, b: T) => {
-      a.lastName.compareTo(b.lastName)
-    }
+  implicit val ordering: Ordering[Author] =
+    (a, b) => { a.lastName.compareTo(b.lastName) }
 }

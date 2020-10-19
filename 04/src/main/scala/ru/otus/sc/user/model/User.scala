@@ -24,8 +24,6 @@ case class User(
 }
 
 object User {
-  implicit def ordering[T <: User]: Ordering[T] =
-    (a: T, b: T) => {
-      a.lastName.compareTo(b.lastName)
-    }
+  implicit val ordering: Ordering[User] =
+    (a, b) => { a.lastName.compareTo(b.lastName) }
 }

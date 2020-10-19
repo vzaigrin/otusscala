@@ -16,8 +16,6 @@ case class Book(
 }
 
 object Book {
-  implicit def ordering[T <: Book]: Ordering[T] =
-    (a: T, b: T) => {
-      a.title.compareTo(b.title)
-    }
+  implicit val ordering: Ordering[Book] =
+    (a, b) => { a.title.compareTo(b.title) }
 }
