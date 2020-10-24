@@ -3,7 +3,7 @@ package ru.otus.sc.user.dao.map
 import java.util.UUID
 
 import ru.otus.sc.user.dao.UserDao
-import ru.otus.sc.user.model.User
+import ru.otus.sc.user.model.{Role, User}
 
 class UserDaoMapImpl extends UserDao {
   private var users: Map[UUID, User] = Map.empty
@@ -36,6 +36,9 @@ class UserDaoMapImpl extends UserDao {
 
   def findByLastName(lastName: String): Seq[User] =
     users.values.filter(_.lastName == lastName).toVector
+
+  def findByRole(role: Role): Seq[User] =
+    users.values.filter(_.roles.contains(role)).toVector
 
   def findAll(): Seq[User] = users.values.toVector
 }

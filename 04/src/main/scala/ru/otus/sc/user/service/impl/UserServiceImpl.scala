@@ -45,5 +45,9 @@ class UserServiceImpl(dao: UserDao) extends UserService {
     request match {
       case FindUsersRequest.ByLastName(lastName) =>
         FindUsersResponse.Result(dao.findByLastName(lastName))
+      case FindUsersRequest.ByRole(role) =>
+        FindUsersResponse.Result(dao.findByRole(role))
+      case FindUsersRequest.All =>
+        FindUsersResponse.Result(dao.findAll())
     }
 }

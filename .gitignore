@@ -1,10 +1,11 @@
 *.class
 *.log
+.DS_Store
 01/.idea
 01/project/project
 01/project/target
 01/target
-01/.idea
+04/.idea
 04/project/project
 04/project/target
 04/target
@@ -12,3 +13,7 @@
 07/project/project
 07/project/target
 07/target
+12/.idea
+12/project/project
+12/project/target
+12/target

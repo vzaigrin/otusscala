@@ -3,6 +3,7 @@ package ru.otus.sc.user.model
 import java.util.UUID
 
 sealed trait Role
+
 object Role {
   case object Reader  extends Role
   case object Manager extends Role
@@ -15,4 +16,14 @@ case class User(
     lastName: String,
     age: Int,
     roles: Set[Role]
-)
+) {
+  override def toString: String = {
+    val roleNames: String = roles.map(_.toString).mkString(", ")
+    s"$lastName $firstName,\tage = $age, roles: $roleNames,\tid: ${id.getOrElse("")}"
+  }
+}
+
+object User {
+  implicit val ordering: Ordering[User] =
+    (a, b) => { a.lastName.compareTo(b.lastName) }
+}
