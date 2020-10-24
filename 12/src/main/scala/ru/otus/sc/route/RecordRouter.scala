@@ -1,125 +1,190 @@
 package ru.otus.sc.route
 
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.concat
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.Directives._
+import sttp.tapir._
+import sttp.model._
+import sttp.tapir.server.akkahttp.RichAkkaHttpEndpoint
 import ru.otus.sc.model.record._
 import ru.otus.sc.service.RecordService
-import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport._
-import ru.otus.sc.json.RecordJsonProtocol._
 import ru.otus.sc.model.book.Book
 import ru.otus.sc.model.user.User
+import io.circe.Encoder._
+import io.circe.generic.auto.{exportDecoder, exportEncoder}
+import sttp.tapir.json.circe.jsonBody
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
-class RecordRouter(service: RecordService) extends BaseRouter {
+class RecordRouter(pathPrefix: String, service: RecordService) extends BaseRouter {
+  implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
+
   def route: Route =
-    pathPrefix("record") {
-      getRecord ~
-        findRecordByUserId ~
-        findRecordByBookId ~
-        findRecordByGet ~
-        findRecordByReturn ~
-        findAllRecords ~
-        createRecord ~
-        updateRecord ~
-        deleteRecord
-    }
+    concat(
+      findAllRecordsRoute,
+      getRecordRoute,
+      findRecordsRoute,
+      createRecordRoute,
+      deleteRecordRoute(),
+      updateRecordRoute()
+    )
 
-  private def getRecord: Route = {
-    (get & parameter("id".as[UUID])) { uuid =>
-      onSuccess(service.getRecord(GetRecordRequest(uuid))) {
-        case GetRecordResponse.Found(record) => complete(record)
-        case GetRecordResponse.NotFound(_)   => complete(StatusCodes.NotFound)
-      }
+  def endpoints =
+    List(
+      findAllRecordsEndpoint,
+      getRecordEndpoint,
+      findRecordsEndpoint,
+      createRecordEndpoint,
+      deleteRecordEndpoint(),
+      updateRecordEndpoint()
+    )
+
+  private val baseEndpoint: Endpoint[Unit, String, Unit, Any] =
+    endpoint.in(pathPrefix).in("record").errorOut(stringBody)
+
+  // Выводим все записи
+  private def findAllRecordsEndpoint: Endpoint[Unit, String, Seq[Record], Any] =
+    baseEndpoint.get
+      .description("Вывод всех записи")
+      .out(jsonBody[Seq[Record]])
+
+  private def findAllRecords: Future[Either[String, Seq[Record]]] = {
+    service.findRecord(FindRecordRequest.All()) map {
+      case FindRecordResponse.Result(recordSeq) => Right(recordSeq)
+      case _                                    => Left(StatusCodes.NotFound.defaultMessage)
     }
   }
 
-  private def findRecordByUserId: Route = {
-    (get & parameter("userId".as[UUID])) { userId =>
-      onSuccess(
-        service.findRecord(
-          FindRecordRequest.ByUser(new User(Some(userId), "", "", "", "", 0, Set()))
+  private def findAllRecordsRoute: Route = findAllRecordsEndpoint.toRoute(_ => findAllRecords)
+
+  // Выводим запись по id
+  private def getRecordEndpoint: Endpoint[UUID, String, Record, Any] =
+    baseEndpoint.get
+      .description("Вывод конкретной записи по Id")
+      .in(path[UUID])
+      .out(jsonBody[Record])
+
+  private def getRecord(id: UUID): Future[Either[String, Record]] = {
+    service.getRecord(GetRecordRequest(id)) map {
+      case GetRecordResponse.Found(record) => Right(record)
+      case GetRecordResponse.NotFound(_)   => Left(StatusCodes.NotFound.defaultMessage)
+    }
+  }
+
+  private def getRecordRoute: Route = getRecordEndpoint.toRoute(getRecord)
+
+  // Ищем записи по параметрам
+  private val format: DateTimeFormatter            = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+  private def str2time(str: String): LocalDateTime = LocalDateTime.parse(str, format)
+
+  private def findRecordsEndpoint: Endpoint[QueryParams, String, Seq[Record], Any] =
+    baseEndpoint.get
+      .description(
+        "Поиск книг по параметрам: " +
+          "'userId' - Id пользователя, " +
+          "'bookId' - Id книги, " +
+          "'getDT' - yyyyMMddTHHmmss когда книгу взяли, " +
+          "'returnDT' - yyyyMMddTHHmmss когда книгу вернули"
+      )
+      .in("find")
+      .in(queryParams)
+      .out(jsonBody[Seq[Record]])
+
+  private def findRecords(queryParams: QueryParams): Future[Either[String, Seq[Record]]] = {
+    val queryParamsMap: Map[String, String] = queryParams.toMap
+    val queryParamsKeySet: Set[String]      = queryParamsMap.keySet
+
+    if (queryParamsKeySet.contains("userId"))
+      service.findRecord(
+        FindRecordRequest.ByUser(
+          new User(
+            Some(UUID.fromString(queryParamsMap.getOrElse("userId", ""))),
+            "",
+            "",
+            "",
+            "",
+            0,
+            Set()
+          )
         )
-      ) {
-        case FindRecordResponse.Result(recordSeq) => complete(recordSeq)
-        case _                                    => complete(StatusCodes.NotFound)
+      ) map {
+        case FindRecordResponse.Result(record) => Right(record)
+        case _                                 => Left(StatusCodes.NotFound.defaultMessage)
       }
-    }
-  }
-
-  private def findRecordByBookId: Route = {
-    (get & parameter("bookId".as[UUID])) { bookId =>
-      onSuccess(
-        service.findRecord(
-          FindRecordRequest.ByBook(new Book(Some(bookId), "", Set(), 0, 0))
+    else if (queryParamsKeySet.contains("bookId"))
+      service.findRecord(
+        FindRecordRequest.ByBook(
+          new Book(Some(UUID.fromString(queryParamsMap.getOrElse("bookId", ""))), "", Set(), 0, 0)
         )
-      ) {
-        case FindRecordResponse.Result(recordSeq) => complete(recordSeq)
-        case _                                    => complete(StatusCodes.NotFound)
+      ) map {
+        case FindRecordResponse.Result(record) => Right(record)
+        case _                                 => Left(StatusCodes.NotFound.defaultMessage)
       }
-    }
+    else if (queryParamsKeySet.contains("getDT"))
+      service.findRecord(
+        FindRecordRequest.ByGet(str2time(queryParamsMap.getOrElse("getDT", "")))
+      ) map {
+        case FindRecordResponse.Result(record) => Right(record)
+        case _                                 => Left(StatusCodes.NotFound.defaultMessage)
+      }
+    else if (queryParamsKeySet.contains("returnDT"))
+      service.findRecord(
+        FindRecordRequest.ByReturn(str2time(queryParamsMap.getOrElse("returnDT", "")))
+      ) map {
+        case FindRecordResponse.Result(record) => Right(record)
+        case _                                 => Left(StatusCodes.NotFound.defaultMessage)
+      }
+    else Future(Left(StatusCodes.BadRequest.defaultMessage))
   }
 
-  private val format                = new SimpleDateFormat("yyyyMMdd'T'HHmmss")
-  private def str2time(str: String) = new Timestamp(format.parse(str).getTime)
+  private def findRecordsRoute: Route = findRecordsEndpoint.toRoute(findRecords)
 
-  private def findRecordByGet: Route = {
-    (get & parameter("getDT".as[String])) { dt =>
-      try {
-        onSuccess(service.findRecord(FindRecordRequest.ByGet(str2time(dt)))) {
-          case FindRecordResponse.Result(recordSeq) => complete(recordSeq)
-          case _                                    => complete(StatusCodes.NotFound)
-        }
-      } catch {
-        case _: Throwable => complete(StatusCodes.BadRequest)
-      }
-    }
-  }
+  // Создаём запись
+  private def createRecordEndpoint: Endpoint[Record, String, Record, Any] =
+    baseEndpoint.post
+      .description("Создаём запись")
+      .in(jsonBody[Record])
+      .out(jsonBody[Record])
 
-  private def findRecordByReturn: Route = {
-    (get & parameter("returnDT".as[String])) { dt =>
-      try {
-        onSuccess(service.findRecord(FindRecordRequest.ByReturn(str2time(dt)))) {
-          case FindRecordResponse.Result(recordSeq) => complete(recordSeq)
-          case _                                    => complete(StatusCodes.NotFound)
-        }
-      } catch {
-        case _: Throwable => complete(StatusCodes.BadRequest)
-      }
-    }
-  }
-
-  private def findAllRecords: Route =
-    get {
-      onSuccess(service.findRecord(FindRecordRequest.All())) {
-        case FindRecordResponse.Result(recordSeq) => complete(recordSeq)
-        case _                                    => complete(StatusCodes.NotFound)
-      }
+  private def createRecord(record: Record): Future[Either[String, Record]] =
+    service.createRecord(CreateRecordRequest(record)) map {
+      case CreateRecordResponse(response) => Right(response)
+      case _                              => Left(StatusCodes.BadRequest.defaultMessage)
     }
 
-  private def createRecord: Route =
-    (post & entity(as[Record])) { record =>
-      onSuccess(service.createRecord(CreateRecordRequest(record))) { response =>
-        complete(response.record)
-      }
+  private def createRecordRoute: Route = createRecordEndpoint.toRoute(createRecord)
+
+  // Удаляем запись по Id
+  private def deleteRecordEndpoint(): Endpoint[UUID, String, Record, Any] =
+    baseEndpoint.delete
+      .description("Удаляем запись по Id")
+      .in(path[UUID])
+      .out(jsonBody[Record])
+
+  private def deleteRecord(id: UUID): Future[Either[String, Record]] =
+    service.deleteRecord(DeleteRecordRequest(id)) map {
+      case DeleteRecordResponse.Deleted(record) => Right(record)
+      case DeleteRecordResponse.NotFound(_)     => Left(StatusCodes.NotFound.defaultMessage)
     }
 
-  private def updateRecord: Route =
-    (put & entity(as[Record])) { record =>
-      onSuccess(service.updateRecord(UpdateRecordRequest(record))) {
-        case UpdateRecordResponse.Updated(record)           => complete(record)
-        case UpdateRecordResponse.NotFound(_)               => complete(StatusCodes.NotFound)
-        case UpdateRecordResponse.CantUpdateRecordWithoutId => complete(StatusCodes.BadRequest)
-      }
+  private def deleteRecordRoute(): Route = deleteRecordEndpoint().toRoute(deleteRecord)
+
+  // Обновляем запись
+  private def updateRecordEndpoint(): Endpoint[Record, String, Record, Any] =
+    baseEndpoint.put
+      .description("Обновляем запись")
+      .in(jsonBody[Record])
+      .out(jsonBody[Record])
+
+  private def updateRecord(record: Record): Future[Either[String, Record]] =
+    service.updateRecord(UpdateRecordRequest(record)) map {
+      case UpdateRecordResponse.Updated(record) => Right(record)
+      case UpdateRecordResponse.NotFound(_)     => Left(StatusCodes.NotFound.defaultMessage)
+      case UpdateRecordResponse.CantUpdateRecordWithoutId =>
+        Left(StatusCodes.BadRequest.defaultMessage)
     }
 
-  private def deleteRecord: Route =
-    (delete & path(JavaUUID.map(DeleteRecordRequest))) { recordIdRequest =>
-      onSuccess(service.deleteRecord(recordIdRequest)) {
-        case DeleteRecordResponse.Deleted(record) => complete(record)
-        case DeleteRecordResponse.NotFound(_)     => complete(StatusCodes.NotFound)
-      }
-    }
+  private def updateRecordRoute(): Route = updateRecordEndpoint().toRoute(updateRecord)
 }

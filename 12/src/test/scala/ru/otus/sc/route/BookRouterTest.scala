@@ -11,7 +11,7 @@ class BookRouterTest extends AnyFreeSpec with ScalatestRouteTest with MockFactor
   "Methods tests" - {
     "route" in {
       val srv    = mock[BookService]
-      val router = new BookRouter(srv)
+      val router = new BookRouter("", srv)
       val uuid   = UUID.randomUUID()
 
       Get(s"/book/?id=$uuid") ~> router.route ~> check {

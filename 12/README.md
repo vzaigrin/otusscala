@@ -5,3 +5,6 @@
 
 **Решение**
 
+Акторов не было.
+Добавлена библиотека [tapir](https://github.com/softwaremill/tapir) для описания endpoint'ов.
+Сгенерировано описание в формате OpenAPI: docs.yaml

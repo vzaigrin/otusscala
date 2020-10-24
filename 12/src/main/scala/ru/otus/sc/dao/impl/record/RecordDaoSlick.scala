@@ -1,8 +1,7 @@
 package ru.otus.sc.dao.impl.record
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.UUID
-
 import ru.otus.sc.dao.RecordDao
 import ru.otus.sc.dao.impl.Slick.{
   authors,
@@ -143,9 +142,10 @@ class RecordDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Record
   override def findByBook(book: Book): Future[Seq[Record]] =
     findByCondition(_.bookId === book.id.get)
 
-  override def findByGet(dt: Timestamp): Future[Seq[Record]] = findByCondition(_.getDT === dt)
+  override def findByGet(dt: LocalDateTime): Future[Seq[Record]] = findByCondition(_.getDT === dt)
 
-  override def findByReturn(dt: Timestamp): Future[Seq[Record]] = findByCondition(_.returnDT === dt)
+  override def findByReturn(dt: LocalDateTime): Future[Seq[Record]] =
+    findByCondition(_.returnDT === dt)
 
   override def findAll(): Future[Seq[Record]] = findByCondition(_ => true)
 }

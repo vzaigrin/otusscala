@@ -1,6 +1,6 @@
 package ru.otus.sc.service.impl
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.UUID
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -42,9 +42,9 @@ class RecordServiceImplTest extends AnyFreeSpec with MockFactory with ScalaFutur
   val book2: Book     = Book(Some(UUID.randomUUID()), "book2", Set(author2), 3, 4)
 
   val record1: Record =
-    Record(Some(UUID.randomUUID()), user1, book1, new Timestamp(0), new Timestamp(1))
+    Record(Some(UUID.randomUUID()), user1, book1, LocalDateTime.now(), LocalDateTime.now())
   val record2: Record =
-    Record(Some(UUID.randomUUID()), user2, book2, new Timestamp(10), new Timestamp(20))
+    Record(Some(UUID.randomUUID()), user2, book2, LocalDateTime.now(), LocalDateTime.now())
 
   "RecordServiceTest tests" - {
     "createRecord" - {

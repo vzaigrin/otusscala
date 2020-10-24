@@ -1,8 +1,7 @@
 package ru.otus.sc.model.record
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.UUID
-
 import ru.otus.sc.model.book.Book
 import ru.otus.sc.model.user.User
 
@@ -10,8 +9,8 @@ case class Record(
     id: Option[UUID],
     user: User,
     book: Book,
-    getDT: Timestamp,
-    returnDT: Timestamp
+    getDT: LocalDateTime,
+    returnDT: LocalDateTime
 ) {
   override def toString: String = s"${id.getOrElse("")}\t$user\t$book\t$getDT\t$returnDT"
 }

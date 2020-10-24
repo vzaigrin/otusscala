@@ -18,7 +18,9 @@ import scala.io.StdIn
 import scala.util.Using
 
 object Main {
-  def createRoute(profile: String, db: Database)(implicit ec: ExecutionContextExecutor): Router = {
+  def createRoute(pathPrefix: String, profile: String, db: Database)(implicit
+      ec: ExecutionContextExecutor
+  ): Router = {
     // Создаём DAO
     val roleDao: RoleDao     = new RoleDaoSlick(db)
     val authorDao: AuthorDao = new AuthorDaoSlick(db)
@@ -28,21 +30,21 @@ object Main {
 
     if (profile.equals("initial")) {
       // Инициализируем базу
-      roleDao.init()
       authorDao.init()
       bookDao.init()
-      userDao.init()
       recordDao.init()
+      roleDao.init()
+      userDao.init()
     }
 
     // Создаём Router
-    val authorRoute  = new AuthorRouter(new AuthorServiceImpl(authorDao))
-    val roleRouter   = new RoleRouter(new RoleServiceImpl(roleDao))
-    val userRouter   = new UserRouter(new UserServiceImpl(userDao))
-    val bookRouter   = new BookRouter(new BookServiceImpl(bookDao))
-    val recordRouter = new RecordRouter(new RecordServiceImpl(recordDao))
+    val authorRoute  = new AuthorRouter(pathPrefix, new AuthorServiceImpl(authorDao))
+    val bookRouter   = new BookRouter(pathPrefix, new BookServiceImpl(bookDao))
+    val recordRouter = new RecordRouter(pathPrefix, new RecordServiceImpl(recordDao))
+    val roleRouter   = new RoleRouter(pathPrefix, new RoleServiceImpl(roleDao))
+    val userRouter   = new UserRouter(pathPrefix, new UserServiceImpl(userDao))
 
-    new Router(authorRoute, bookRouter, roleRouter, userRouter, recordRouter)
+    new Router(authorRoute, bookRouter, recordRouter, roleRouter, userRouter)
   }
 
   def main(args: Array[String]): Unit = {
@@ -50,22 +52,28 @@ object Main {
     val config = ConfigFactory.load()
 
     // Адрес и порт для HTTP сервера
-    val host: String = config.getString("http.host")
-    val port: Int    = config.getInt("http.port")
+    val host: String       = config.getString("http.host")
+    val port: Int          = config.getInt("http.port")
+    val profile: String    = config.getString("profile")
+    val pathPrefix: String = config.getString("pathPrefix")
 
-    implicit val system: ActorSystem = ActorSystem("system")
-    import system.dispatcher
+    implicit val actorSystem: ActorSystem = ActorSystem("system")
+    import actorSystem.dispatcher
 
     // Подключаемся к базе по конфигурации из файла
     Using.resource(Database.forConfig("db")) { db =>
-      val bindingFuture =
-        Http().newServerAt(host, port).bind(createRoute(config.getString("profile"), db).route)
+      val bindingFuture = Http()
+        .newServerAt(host, port)
+        .bind(createRoute(pathPrefix, profile, db).route)
 
-      println(s"Server online at http://$host:$port/\nPress RETURN to stop...")
+      println(s"Server online at http://$host:$port/")
+      println(s"Docs at: http://$host:$port/docs")
+      println("Press any key to exit ...")
       StdIn.readLine() // let it run until user presses return
+
       bindingFuture
-        .flatMap(_.unbind())                 // trigger unbinding from the port
-        .onComplete(_ => system.terminate()) // and shutdown when done
+        .flatMap(_.unbind())                      // trigger unbinding from the port
+        .onComplete(_ => actorSystem.terminate()) // and shutdown when done
     }
   }
 

@@ -1,6 +1,7 @@
 package ru.otus.sc.dao
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 import org.scalatest.concurrent.ScalaFutures
@@ -12,22 +13,25 @@ import ru.otus.sc.model.record
 import ru.otus.sc.model.user.User
 
 abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures {
-  def getDao(): RecordDao
+  def getDao: RecordDao
   def destroyDao(): Unit
 
-  implicit var reader: User  = _
-  implicit var manager: User = _
-  implicit var admin: User   = _
-  implicit var book1: Book   = _
-  implicit var book2: Book   = _
-  implicit var book3: Book   = _
+  implicit var reader: User                = _
+  implicit var manager: User               = _
+  implicit var admin: User                 = _
+  implicit var book1: Book                 = _
+  implicit var book2: Book                 = _
+  implicit var book3: Book                 = _
+  val now: LocalDateTime                   = LocalDateTime.now()
+  val format: DateTimeFormatter            = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+  def str2time(str: String): LocalDateTime = LocalDateTime.parse(str, format)
 
   name - {
     "createRecord" - {
       "create one record" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val createdRecord: Record = dao.createRecord(record1).futureValue
 
         createdRecord.id shouldNot be(None)
@@ -37,16 +41,16 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "getRecord" - {
       "get unknown record" in {
-        val dao: RecordDao            = getDao()
+        val dao: RecordDao            = getDao
         val gotRecord: Option[Record] = dao.getRecord(UUID.randomUUID()).futureValue
 
         gotRecord shouldBe None
       }
 
       "get known record" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val createdRecord: Record     = dao.createRecord(record1).futureValue
         val gotRecord: Option[Record] = dao.getRecord(createdRecord.id.get).futureValue
 
@@ -56,9 +60,9 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "updateRecord" - {
       "change book" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val createdRecord: Record = dao.createRecord(record1).futureValue
         val updatedRecord: Option[Record] =
           dao.updateRecord(createdRecord.copy(book = book2)).futureValue
@@ -70,13 +74,13 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "deleteRecord" - {
       "delete unknown record" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         dao.createRecord(record1).futureValue
         dao.createRecord(record2).futureValue
@@ -87,13 +91,13 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
       }
 
       "delete known record" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         dao.createRecord(record1).futureValue
         val createdRecord: Record = dao.createRecord(record2).futureValue
@@ -106,13 +110,13 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "findRecord" - {
       "findByUser" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         dao.createRecord(record1).futureValue
         val createdRecord: Record = dao.createRecord(record2).futureValue
@@ -123,13 +127,13 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
       }
 
       "findByBook" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         dao.createRecord(record1).futureValue
         dao.createRecord(record2).futureValue
@@ -140,48 +144,52 @@ abstract class RecordDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
       }
 
       "findByGet" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao      = getDao
+        val get1: LocalDateTime = str2time("20201020T152030")
+        val ret1: LocalDateTime = str2time("20201025T152030")
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, get1, ret1)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         val createdRecord: Record = dao.createRecord(record1).futureValue
         dao.createRecord(record2).futureValue
         dao.createRecord(record3).futureValue
-        val foundRecord: Option[Record] = dao.findByGet(new Timestamp(0)).futureValue.headOption
+        val foundRecord: Option[Record] = dao.findByGet(get1).futureValue.headOption
 
         foundRecord shouldBe Some(createdRecord)
       }
 
       "findByReturn" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao      = getDao
+        val get1: LocalDateTime = str2time("20201020T152030")
+        val ret1: LocalDateTime = str2time("20201025T152030")
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, get1, ret1)
 
         dao.createRecord(record1).futureValue
         dao.createRecord(record2).futureValue
         val createdRecord: Record = dao.createRecord(record3).futureValue
         val foundRecord: Option[Record] =
-          dao.findByReturn(new Timestamp(100100000)).futureValue.headOption
+          dao.findByReturn(ret1).futureValue.headOption
 
         foundRecord shouldBe Some(createdRecord)
       }
 
       "findAll" in {
-        val dao: RecordDao = getDao()
+        val dao: RecordDao = getDao
         val record1: Record =
-          record.Record(None, admin, book1, new Timestamp(0), new Timestamp(100000000))
+          record.Record(None, admin, book1, now, now)
         val record2: Record =
-          record.Record(None, reader, book2, new Timestamp(10000), new Timestamp(100010000))
+          record.Record(None, reader, book2, now, now)
         val record3: Record =
-          record.Record(None, manager, book3, new Timestamp(100000), new Timestamp(100100000))
+          record.Record(None, manager, book3, now, now)
 
         val createdRecords: Seq[Record] =
           Seq(record1, record2, record3).map(dao.createRecord).map(_.futureValue)
