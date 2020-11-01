@@ -11,7 +11,7 @@ class RoleRouterTest extends AnyFreeSpec with ScalatestRouteTest with MockFactor
   "Methods tests" - {
     "route" in {
       val srv    = mock[RoleService]
-      val router = new RoleRouter(srv)
+      val router = new RoleRouter("test", srv)
       val uuid   = UUID.randomUUID()
 
       Get(s"/role/?id=$uuid") ~> router.route ~> check {

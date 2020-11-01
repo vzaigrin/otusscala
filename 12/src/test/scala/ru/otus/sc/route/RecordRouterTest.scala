@@ -11,7 +11,7 @@ class RecordRouterTest extends AnyFreeSpec with ScalatestRouteTest with MockFact
   "Methods tests" - {
     "route" in {
       val srv    = mock[RecordService]
-      val router = new RecordRouter(srv)
+      val router = new RecordRouter("", srv)
       val uuid   = UUID.randomUUID()
 
       Get(s"/record/?id=$uuid") ~> router.route ~> check {

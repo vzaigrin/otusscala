@@ -1,7 +1,6 @@
 package ru.otus.sc.model.book
 
 import java.util.UUID
-
 import ru.otus.sc.model.author.Author
 
 case class Book(

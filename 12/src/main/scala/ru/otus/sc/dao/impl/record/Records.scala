@@ -1,6 +1,6 @@
 package ru.otus.sc.dao.impl.record
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.UUID
 import ru.otus.sc.dao.impl.Slick.{books, users}
 import ru.otus.sc.dao.impl.book.{BookRow, Books}
@@ -12,8 +12,8 @@ class Records(tag: Tag) extends Table[RecordRow](tag, "book_records") {
   val id       = column[UUID]("id", O.PrimaryKey, O.Unique)
   val userId   = column[UUID]("userid")
   val bookId   = column[UUID]("bookid")
-  val getDT    = column[Timestamp]("getdt")
-  val returnDT = column[Timestamp]("returndt")
+  val getDT    = column[LocalDateTime]("getdt")
+  val returnDT = column[LocalDateTime]("returndt")
 
   val * = (id.?, userId, bookId, getDT, returnDT).mapTo[RecordRow]
 

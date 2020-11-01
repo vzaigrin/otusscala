@@ -1,104 +1,167 @@
 package ru.otus.sc.route
 
 import java.util.UUID
-
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.concat
 import ru.otus.sc.model.book._
 import ru.otus.sc.service.BookService
-import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport._
-import ru.otus.sc.json.BookJsonProtocol._
+import sttp.tapir._
+import sttp.tapir.json.circe.jsonBody
 import ru.otus.sc.model.author.Author
+import sttp.model._
+import sttp.tapir.server.akkahttp.RichAkkaHttpEndpoint
+import io.circe.Encoder._
+import io.circe.generic.auto.{exportDecoder, exportEncoder}
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
-class BookRouter(service: BookService) extends BaseRouter {
+class BookRouter(pathPrefix: String, service: BookService) extends BaseRouter {
+  implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
+
   def route: Route =
-    pathPrefix("book") {
-      getBook ~
-        findBookByTitle ~
-        findBookByAuthorId ~
-        findBookByYear ~
-        findBookByPages ~
-        findAllBooks ~
-        createBook ~
-        updateBook ~
-        deleteBook
-    }
+    concat(
+      findAllBooksRoute,
+      getBookRoute,
+      findBooksRoute,
+      createBookRoute,
+      deleteBookRoute(),
+      updateBookRoute()
+    )
 
-  private def getBook: Route = {
-    (get & parameter("id".as[UUID])) { uuid =>
-      onSuccess(service.getBook(GetBookRequest(uuid))) {
-        case GetBookResponse.Found(book) => complete(book)
-        case GetBookResponse.NotFound(_) => complete(StatusCodes.NotFound)
-      }
+  def endpoints =
+    List(
+      findAllBooksEndpoint,
+      getBookEndpoint,
+      findBooksEndpoint,
+      createBookEndpoint,
+      deleteBookEndpoint(),
+      updateBookEndpoint()
+    )
+
+  private val baseEndpoint: Endpoint[Unit, String, Unit, Any] =
+    endpoint.in(pathPrefix).in("book").errorOut(stringBody)
+
+  // Выводим все книги
+  private def findAllBooksEndpoint: Endpoint[Unit, String, Seq[Book], Any] =
+    baseEndpoint.get
+      .description("Вывод всех книги")
+      .out(jsonBody[Seq[Book]])
+
+  private def findAllBooks: Future[Either[String, Seq[Book]]] = {
+    service.findBook(FindBookRequest.All()) map {
+      case FindBookResponse.Result(bookSeq) => Right(bookSeq)
+      case _                                => Left(StatusCodes.NotFound.defaultMessage)
     }
   }
 
-  private def findBookByTitle: Route = {
-    (get & parameter("title".as[String])) { title =>
-      onSuccess(service.findBook(FindBookRequest.ByTitle(title))) {
-        case FindBookResponse.Result(bookSeq) => complete(bookSeq)
-        case _                                => complete(StatusCodes.NotFound)
-      }
+  private def findAllBooksRoute: Route = findAllBooksEndpoint.toRoute(_ => findAllBooks)
+
+  // Выводим книгу по id
+  private def getBookEndpoint: Endpoint[UUID, String, Book, Any] =
+    baseEndpoint.get
+      .description("Вывод конкретной книги по Id")
+      .in(path[UUID])
+      .out(jsonBody[Book])
+
+  private def getBook(id: UUID): Future[Either[String, Book]] = {
+    service.getBook(GetBookRequest(id)) map {
+      case GetBookResponse.Found(book) => Right(book)
+      case GetBookResponse.NotFound(_) => Left(StatusCodes.NotFound.defaultMessage)
     }
   }
 
-  private def findBookByAuthorId: Route = {
-    (get & parameter("authorId".as[UUID])) { authorId =>
-      onSuccess(service.findBook(FindBookRequest.ByAuthor(new Author(Some(authorId), "", "")))) {
-        case FindBookResponse.Result(bookSeq) => complete(bookSeq)
-        case _                                => complete(StatusCodes.NotFound)
+  private def getBookRoute: Route = getBookEndpoint.toRoute(getBook)
+
+  // Ищем книги по параметрам
+  private def findBooksEndpoint: Endpoint[QueryParams, String, Seq[Book], Any] =
+    baseEndpoint.get
+      .description(
+        "Поиск книг по параметрам: " +
+          "'title' - название, " +
+          "'authorId' - Id автора, " +
+          "'year' - год издания, " +
+          "'pages' - кол-во страниц"
+      )
+      .in("find")
+      .in(queryParams)
+      .out(jsonBody[Seq[Book]])
+
+  private def findBooks(queryParams: QueryParams): Future[Either[String, Seq[Book]]] = {
+    val queryParamsMap: Map[String, String] = queryParams.toMap
+    val queryParamsKeySet: Set[String]      = queryParamsMap.keySet
+
+    if (queryParamsKeySet.contains("title"))
+      service.findBook(FindBookRequest.ByTitle(queryParamsMap.getOrElse("title", ""))) map {
+        case FindBookResponse.Result(book) => Right(book)
+        case _                             => Left(StatusCodes.NotFound.defaultMessage)
       }
-    }
+    else if (queryParamsKeySet.contains("authorId"))
+      service.findBook(
+        FindBookRequest.ByAuthor(
+          new Author(Some(UUID.fromString(queryParamsMap.getOrElse("authorId", ""))), "", "")
+        )
+      ) map {
+        case FindBookResponse.Result(book) => Right(book)
+        case _                             => Left(StatusCodes.NotFound.defaultMessage)
+      }
+    else if (queryParamsKeySet.contains("year"))
+      service.findBook(FindBookRequest.ByYear(queryParamsMap.getOrElse("year", "").toInt)) map {
+        case FindBookResponse.Result(book) => Right(book)
+        case _                             => Left(StatusCodes.NotFound.defaultMessage)
+      }
+    else if (queryParamsKeySet.contains("pages"))
+      service.findBook(FindBookRequest.ByPages(queryParamsMap.getOrElse("pages", "").toInt)) map {
+        case FindBookResponse.Result(book) => Right(book)
+        case _                             => Left(StatusCodes.NotFound.defaultMessage)
+      }
+    else Future(Left(StatusCodes.BadRequest.defaultMessage))
   }
 
-  private def findBookByYear: Route = {
-    (get & parameter("year".as[Int])) { year =>
-      onSuccess(service.findBook(FindBookRequest.ByYear(year))) {
-        case FindBookResponse.Result(bookSeq) => complete(bookSeq)
-        case _                                => complete(StatusCodes.NotFound)
-      }
-    }
-  }
+  private def findBooksRoute: Route = findBooksEndpoint.toRoute(findBooks)
 
-  private def findBookByPages: Route = {
-    (get & parameter("pages".as[Int])) { pages =>
-      onSuccess(service.findBook(FindBookRequest.ByPages(pages))) {
-        case FindBookResponse.Result(bookSeq) => complete(bookSeq)
-        case _                                => complete(StatusCodes.NotFound)
-      }
-    }
-  }
+  // Создаём книгу
+  private def createBookEndpoint: Endpoint[Book, String, Book, Any] =
+    baseEndpoint.post
+      .description("Создаём книгу")
+      .in(jsonBody[Book])
+      .out(jsonBody[Book])
 
-  private def findAllBooks: Route =
-    get {
-      onSuccess(service.findBook(FindBookRequest.All())) {
-        case FindBookResponse.Result(bookSeq) => complete(bookSeq)
-        case _                                => complete(StatusCodes.NotFound)
-      }
+  private def createBook(book: Book): Future[Either[String, Book]] =
+    service.createBook(CreateBookRequest(book)) map {
+      case CreateBookResponse(response) => Right(response)
+      case _                            => Left(StatusCodes.BadRequest.defaultMessage)
     }
 
-  private def createBook: Route =
-    (post & entity(as[Book])) { book =>
-      onSuccess(service.createBook(CreateBookRequest(book))) { response =>
-        complete(response.book)
-      }
+  private def createBookRoute: Route = createBookEndpoint.toRoute(createBook)
+
+  // Удаляем книгу по Id
+  private def deleteBookEndpoint(): Endpoint[UUID, String, Book, Any] =
+    baseEndpoint.delete
+      .description("Удаляем книгу по Id")
+      .in(path[UUID])
+      .out(jsonBody[Book])
+
+  private def deleteBook(id: UUID): Future[Either[String, Book]] =
+    service.deleteBook(DeleteBookRequest(id)) map {
+      case DeleteBookResponse.Deleted(book) => Right(book)
+      case DeleteBookResponse.NotFound(_)   => Left(StatusCodes.NotFound.defaultMessage)
     }
 
-  private def updateBook: Route =
-    (put & entity(as[Book])) { book =>
-      onSuccess(service.updateBook(UpdateBookRequest(book))) {
-        case UpdateBookResponse.Updated(book)           => complete(book)
-        case UpdateBookResponse.NotFound(_)             => complete(StatusCodes.NotFound)
-        case UpdateBookResponse.CantUpdateBookWithoutId => complete(StatusCodes.BadRequest)
-      }
+  private def deleteBookRoute(): Route = deleteBookEndpoint().toRoute(deleteBook)
+
+  // Обновляем книгу
+  private def updateBookEndpoint(): Endpoint[Book, String, Book, Any] =
+    baseEndpoint.put
+      .description("Обновляем книгу")
+      .in(jsonBody[Book])
+      .out(jsonBody[Book])
+
+  private def updateBook(book: Book): Future[Either[String, Book]] =
+    service.updateBook(UpdateBookRequest(book)) map {
+      case UpdateBookResponse.Updated(book)           => Right(book)
+      case UpdateBookResponse.NotFound(_)             => Left(StatusCodes.NotFound.defaultMessage)
+      case UpdateBookResponse.CantUpdateBookWithoutId => Left(StatusCodes.BadRequest.defaultMessage)
     }
 
-  private def deleteBook: Route =
-    (delete & path(JavaUUID.map(DeleteBookRequest))) { bookIdRequest =>
-      onSuccess(service.deleteBook(bookIdRequest)) {
-        case DeleteBookResponse.Deleted(book) => complete(book)
-        case DeleteBookResponse.NotFound(_)   => complete(StatusCodes.NotFound)
-      }
-    }
+  private def updateBookRoute(): Route = updateBookEndpoint().toRoute(updateBook)
 }

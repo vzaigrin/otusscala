@@ -11,7 +11,7 @@ class AuthorRouterTest extends AnyFreeSpec with ScalatestRouteTest with MockFact
   "Methods tests" - {
     "route" in {
       val srv    = mock[AuthorService]
-      val router = new AuthorRouter(srv)
+      val router = new AuthorRouter("", srv)
       val uuid   = UUID.randomUUID()
 
       Get(s"/author/?id=$uuid") ~> router.route ~> check {

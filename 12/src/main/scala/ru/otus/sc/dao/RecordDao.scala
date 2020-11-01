@@ -1,12 +1,10 @@
 package ru.otus.sc.dao
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.UUID
-
 import ru.otus.sc.model.book.Book
 import ru.otus.sc.model.record.Record
 import ru.otus.sc.model.user.User
-
 import scala.concurrent.Future
 
 trait RecordDao {
@@ -19,7 +17,7 @@ trait RecordDao {
   def deleteRecord(id: UUID): Future[Option[Record]]
   def findByUser(user: User): Future[Seq[Record]]
   def findByBook(book: Book): Future[Seq[Record]]
-  def findByGet(dt: Timestamp): Future[Seq[Record]]
-  def findByReturn(dt: Timestamp): Future[Seq[Record]]
+  def findByGet(dt: LocalDateTime): Future[Seq[Record]]
+  def findByReturn(dt: LocalDateTime): Future[Seq[Record]]
   def findAll(): Future[Seq[Record]]
 }

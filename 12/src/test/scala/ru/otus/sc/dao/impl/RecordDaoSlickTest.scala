@@ -93,7 +93,7 @@ class RecordDaoSlickTest extends RecordDaoTest("RecordDaoSlickTest") with Before
     db.close
   }
 
-  override def getDao(): RecordDao = {
+  override def getDao: RecordDao = {
     Await.result(recordDao.clean(), Duration.Inf)
     recordDao
   }

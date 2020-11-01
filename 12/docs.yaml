@@ -1,0 +1,743 @@
+openapi: 3.0.1
+info:
+  title: Books Library
+  version: 1.0.0
+paths:
+  /api/author:
+    get:
+      description: Вывод всех авторов
+      operationId: getApiAuthor
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Обновляем автора
+      operationId: putApiAuthor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      description: Создаём автора
+      operationId: postApiAuthor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/author/{p1}:
+    get:
+      description: Вывод конкретного автора по Id
+      operationId: getApiAuthorP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      description: Удаляем автора по Id
+      operationId: deleteApiAuthorP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/author/find:
+    get:
+      description: Поиск авторов по фамилии
+      operationId: getApiAuthorFind
+      parameters:
+      - name: lastname
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/book:
+    get:
+      description: Вывод всех книги
+      operationId: getApiBook
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Обновляем книгу
+      operationId: putApiBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      description: Создаём книгу
+      operationId: postApiBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/book/{p1}:
+    get:
+      description: Вывод конкретной книги по Id
+      operationId: getApiBookP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      description: Удаляем книгу по Id
+      operationId: deleteApiBookP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/book/find:
+    get:
+      description: 'Поиск книг по параметрам: ''title'' - название, ''authorId'' -
+        Id автора, ''year'' - год издания, ''pages'' - кол-во страниц'
+      operationId: getApiBookFind
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/record:
+    get:
+      description: Вывод всех записи
+      operationId: getApiRecord
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Обновляем запись
+      operationId: putApiRecord
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      description: Создаём запись
+      operationId: postApiRecord
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/record/{p1}:
+    get:
+      description: Вывод конкретной записи по Id
+      operationId: getApiRecordP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      description: Удаляем запись по Id
+      operationId: deleteApiRecordP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/record/find:
+    get:
+      description: 'Поиск книг по параметрам: ''userId'' - Id пользователя, ''bookId''
+        - Id книги, ''getDT'' - yyyyMMddTHHmmss когда книгу взяли, ''returnDT'' -
+        yyyyMMddTHHmmss когда книгу вернули'
+      operationId: getApiRecordFind
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/role:
+    get:
+      description: Вывод всех ролей
+      operationId: getApiRole
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Обновляем роль
+      operationId: putApiRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      description: Создаём роль
+      operationId: postApiRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/role/{p1}:
+    get:
+      description: Вывод конкретной роли по Id
+      operationId: getApiRoleP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      description: Удаляем роль по Id
+      operationId: deleteApiRoleP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/role/find:
+    get:
+      description: Поиск ролей по имени
+      operationId: getApiRoleFind
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/user:
+    get:
+      description: Вывод всех пользователей
+      operationId: getApiUser
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Обновляем пользователя
+      operationId: putApiUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      description: Создаём пользователя
+      operationId: postApiUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/user/{p1}:
+    get:
+      description: Вывод конкретной пользователя по Id
+      operationId: getApiUserP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      description: Удаляем пользователя по Id
+      operationId: deleteApiUserP1
+      parameters:
+      - name: p1
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/user/find:
+    get:
+      description: 'Поиск пользователей по параметрам: ''username'' - имя в системе,
+        ''lastname'' - фамилия ''roleId'' - Id роли'
+      operationId: getApiUserFind
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    Author:
+      required:
+      - firstName
+      - lastName
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    Book:
+      required:
+      - title
+      - published
+      - pages
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+        published:
+          type: integer
+        pages:
+          type: integer
+    Record:
+      required:
+      - user
+      - book
+      - getDT
+      - returnDT
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        book:
+          $ref: '#/components/schemas/Book'
+        getDT:
+          type: string
+          format: date-time
+        returnDT:
+          type: string
+          format: date-time
+    User:
+      required:
+      - userName
+      - password
+      - firstName
+      - lastName
+      - age
+      type: object
+      properties:
+        id:
+          type: string
+        userName:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        age:
+          type: integer
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    Role:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
