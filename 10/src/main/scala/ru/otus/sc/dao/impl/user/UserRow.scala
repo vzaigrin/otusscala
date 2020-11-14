@@ -1,9 +1,7 @@
 package ru.otus.sc.dao.impl.user
 
 import java.util.UUID
-
-import ru.otus.sc.model.role.Role
-import ru.otus.sc.model.user.User
+import ru.otus.sc.model.{Role, User}
 
 case class UserRow(
     id: Option[UUID],
@@ -13,7 +11,7 @@ case class UserRow(
     lastName: String,
     age: Int
 ) {
-  def toUser(roles: Set[Role]): User = User(id, userName, password, firstName, lastName, age, roles)
+  def toUser(roles: Set[UUID]): User = User(id, userName, password, firstName, lastName, age, roles)
 }
 
 object UserRow extends ((Option[UUID], String, String, String, String, Int) => UserRow) {

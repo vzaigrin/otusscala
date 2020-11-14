@@ -5,9 +5,8 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers._
-import ru.otus.sc.dao.RoleDao
-import ru.otus.sc.model.role.Role
-import ru.otus.sc.model.role._
+import ru.otus.sc.dao.Dao
+import ru.otus.sc.model._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -19,122 +18,90 @@ class RoleServiceImplTest extends AnyFreeSpec with MockFactory with ScalaFutures
   "RoleServiceTest tests" - {
     "createRole" - {
       "should create role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
 
-        (dao.createRole _).expects(role1).returns(Future.successful(role2))
+        (dao.create _).expects(role1).returns(Future.successful(role2))
 
-        srv.createRole(CreateRoleRequest(role1)).futureValue shouldBe CreateRoleResponse(role2)
+        srv.create(CreateRequest(role1)).futureValue shouldBe CreateResponse(role2)
       }
     }
 
     "getRole" - {
       "should return role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
         val id  = UUID.randomUUID()
 
-        (dao.getRole _).expects(id).returns(Future.successful(Some(role1)))
+        (dao.get _).expects(id).returns(Future.successful(Some(role1)))
 
-        srv.getRole(GetRoleRequest(id)).futureValue shouldBe GetRoleResponse.Found(role1)
+        srv.get(GetRequest(id)).futureValue shouldBe GetResponse.Found(role1)
       }
 
       "should return NotFound on unknown role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
         val id  = UUID.randomUUID()
 
-        (dao.getRole _).expects(id).returns(Future.successful(None))
+        (dao.get _).expects(id).returns(Future.successful(None))
 
-        srv.getRole(GetRoleRequest(id)).futureValue shouldBe GetRoleResponse.NotFound(id)
+        srv.get(GetRequest(id)).futureValue shouldBe GetResponse.NotFound(id)
       }
     }
 
     "updateRole" - {
       "should update existing role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
 
-        (dao.updateRole _).expects(role1).returns(Future.successful(Some(role2)))
+        (dao.update _).expects(role1).returns(Future.successful(Some(role2)))
 
-        srv.updateRole(UpdateRoleRequest(role1)).futureValue shouldBe UpdateRoleResponse.Updated(
+        srv.update(UpdateRequest(role1)).futureValue shouldBe UpdateResponse.Updated(
           role2
         )
       }
 
       "should return NotFound on unknown role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
 
-        (dao.updateRole _).expects(role1).returns(Future.successful(None))
+        (dao.update _).expects(role1).returns(Future.successful(None))
 
-        srv.updateRole(UpdateRoleRequest(role1)).futureValue shouldBe UpdateRoleResponse.NotFound(
+        srv.update(UpdateRequest(role1)).futureValue shouldBe UpdateResponse.NotFound(
           role1.id.get
         )
       }
 
       "should return CantUpdateRoleWithoutId on role without id" in {
-        val dao  = mock[RoleDao]
-        val srv  = new RoleServiceImpl(dao)
+        val dao  = mock[Dao[Role]]
+        val srv  = new ServiceImpl(dao)
         val role = role1.copy(id = None)
 
         srv
-          .updateRole(UpdateRoleRequest(role))
-          .futureValue shouldBe UpdateRoleResponse.CantUpdateRoleWithoutId
+          .update(UpdateRequest(role))
+          .futureValue shouldBe UpdateResponse.CantUpdateWithoutId
       }
     }
 
     "deleteRole" - {
       "should delete role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
         val id  = UUID.randomUUID()
 
-        (dao.deleteRole _).expects(id).returns(Future.successful(Some(role1)))
+        (dao.delete _).expects(id).returns(Future.successful(Some(role1)))
 
-        srv.deleteRole(DeleteRoleRequest(id)).futureValue shouldBe DeleteRoleResponse.Deleted(role1)
+        srv.delete(DeleteRequest(id)).futureValue shouldBe DeleteResponse.Deleted(role1)
       }
 
       "should return NotFound on unknown role" in {
-        val dao = mock[RoleDao]
-        val srv = new RoleServiceImpl(dao)
+        val dao = mock[Dao[Role]]
+        val srv = new ServiceImpl(dao)
         val id  = UUID.randomUUID()
 
-        (dao.deleteRole _).expects(id).returns(Future.successful(None))
+        (dao.delete _).expects(id).returns(Future.successful(None))
 
-        srv.deleteRole(DeleteRoleRequest(id)).futureValue shouldBe DeleteRoleResponse.NotFound(id)
-      }
-    }
-
-    "findRoles" - {
-      "by last name" - {
-        "should return empty list" in {
-          val dao  = mock[RoleDao]
-          val srv  = new RoleServiceImpl(dao)
-          val name = "abc"
-
-          (dao.findByName _).expects(name).returns(Future.successful(Seq.empty))
-
-          srv
-            .findRole(FindRoleRequest.ByName(name))
-            .futureValue shouldBe FindRoleResponse.Result(
-            Seq.empty
-          )
-        }
-
-        "should return non-empty list" in {
-          val dao  = mock[RoleDao]
-          val srv  = new RoleServiceImpl(dao)
-          val name = "abc"
-
-          (dao.findByName _).expects(name).returns(Future.successful(Seq(role1, role2)))
-
-          srv
-            .findRole(FindRoleRequest.ByName(name))
-            .futureValue shouldBe FindRoleResponse.Result(
-            Seq(role1, role2)
-          )
-        }
+        srv.delete(DeleteRequest(id)).futureValue shouldBe DeleteResponse.NotFound(id)
       }
     }
   }

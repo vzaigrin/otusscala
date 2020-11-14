@@ -1,17 +1,14 @@
 package ru.otus.sc.dao.impl.author
 
 import java.util.UUID
-
-import ru.otus.sc.dao.AuthorDao
-import ru.otus.sc.dao.impl.Slick.authors
-import ru.otus.sc.model.author.Author
+import ru.otus.sc.dao.Dao
+import ru.otus.sc.dao.impl.Slick.{authors, books_to_authors}
+import ru.otus.sc.model.Author
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile.api._
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends AuthorDao {
-
+class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Dao[Author] {
   override def init(): Future[Unit] =
     db.run(
       DBIO.seq(
@@ -24,8 +21,9 @@ class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Author
 
   override def destroy(): Future[Unit] = db.run(DBIO.seq(authors.schema.dropIfExists))
 
-  override def createAuthor(author: Author): Future[Author] = {
-    val newId = UUID.randomUUID()
+  override def create(entity: Author): Future[Author] = {
+    val author = entity.asInstanceOf[Author]
+    val newId  = UUID.randomUUID()
     val res = for {
       _ <- (authors returning authors) += AuthorRow.fromAuthor(author).copy(id = Some(newId))
     } yield author.copy(id = Some(newId))
@@ -33,7 +31,7 @@ class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Author
     db.run(res.transactionally)
   }
 
-  override def getAuthor(id: UUID): Future[Option[Author]] = {
+  override def get(id: UUID): Future[Option[Author]] = {
     val res = for {
       author <- authors.filter(author => author.id === id).result.headOption
     } yield author.map(_.toAuthor)
@@ -41,7 +39,8 @@ class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Author
     db.run(res)
   }
 
-  override def updateAuthor(author: Author): Future[Option[Author]] = {
+  override def update(entity: Author): Future[Option[Author]] = {
+    val author = entity.asInstanceOf[Author]
     author.id match {
       case Some(authorId) =>
         val updateAuthor =
@@ -65,15 +64,16 @@ class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Author
     }
   }
 
-  override def deleteAuthor(id: UUID): Future[Option[Author]] = {
+  override def delete(id: UUID): Future[Option[Author]] = {
     val action =
       for {
-        u <- authors.filter(_.id === id).forUpdate.result.headOption
-        res <- u match {
+        a <- authors.filter(_.id === id).forUpdate.result.headOption
+        res <- a match {
           case None => DBIO.successful(None)
           case Some(authorRow) =>
             for {
               _ <- authors.filter(_.id === id).delete
+              _ <- books_to_authors.filter(_.authorId === id).delete
             } yield Some(authorRow.toAuthor)
         }
       } yield res
@@ -85,8 +85,12 @@ class AuthorDaoSlick(db: Database)(implicit ec: ExecutionContext) extends Author
     db.run(authors.filter(condition).result)
       .map(_.map { authorRow => authorRow.toAuthor }.toSeq)
 
-  override def findByLastName(lastName: String): Future[Seq[Author]] =
-    findByCondition(_.lastName === lastName)
+  override def findByField(field: String, value: String): Future[Seq[Author]] =
+    field.toLowerCase match {
+      case "firstname" => findByCondition(_.firstName === value)
+      case "lastname"  => findByCondition(_.lastName === value)
+      case _           => Future.successful(Seq())
+    }
 
   override def findAll(): Future[Seq[Author]] = findByCondition(_ => true)
 }

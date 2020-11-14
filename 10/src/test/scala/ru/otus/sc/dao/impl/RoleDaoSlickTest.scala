@@ -1,16 +1,17 @@
 package ru.otus.sc.dao.impl
 
 import org.scalatest.BeforeAndAfterAll
-import ru.otus.sc.dao.impl.role.{RoleDaoSlick, Roles}
-import ru.otus.sc.dao.{RoleDao, RoleDaoTest}
+import ru.otus.sc.dao.impl.role.RoleDaoSlick
+import ru.otus.sc.dao.{Dao, RoleDaoTest}
+import ru.otus.sc.model.Role
 import slick.jdbc.JdbcBackend.Database
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 class RoleDaoSlickTest extends RoleDaoTest("RoleDaoSlickTest") with BeforeAndAfterAll {
-  private var db: Database     = _
-  private var roleDao: RoleDao = _
+  private var db: Database       = _
+  private var roleDao: Dao[Role] = _
 
   override def beforeAll(): Unit = {
     db = Database.forConfig("testdb")
@@ -23,7 +24,7 @@ class RoleDaoSlickTest extends RoleDaoTest("RoleDaoSlickTest") with BeforeAndAft
     db.close
   }
 
-  override def getDao(): RoleDao = {
+  override def getDao: Dao[Role] = {
     roleDao.clean()
     roleDao
   }

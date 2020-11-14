@@ -3,16 +3,22 @@ package ru.otus.sc
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import java.security.MessageDigest
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.typesafe.config.ConfigFactory
 import ru.otus.sc.dao.impl.author.AuthorDaoSlick
 import ru.otus.sc.dao.impl.book.BookDaoSlick
 import ru.otus.sc.dao.impl.record.RecordDaoSlick
 import ru.otus.sc.dao.impl.role.RoleDaoSlick
 import ru.otus.sc.dao.impl.user.UserDaoSlick
-import ru.otus.sc.dao._
+import ru.otus.sc.route.impl._
 import slick.jdbc.JdbcBackend.Database
-import ru.otus.sc.route._
-import ru.otus.sc.service.impl._
+import ru.otus.sc.service.impl.ServiceImpl
+import sttp.tapir.Endpoint
+import sttp.tapir.openapi.OpenAPI
+import sttp.tapir.openapi.circe.yaml._
+import sttp.tapir.docs.openapi._
+import sttp.tapir.swagger.akkahttp.SwaggerAkka
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
 import scala.util.Using
@@ -20,13 +26,13 @@ import scala.util.Using
 object Main {
   def createRoute(pathPrefix: String, profile: String, db: Database)(implicit
       ec: ExecutionContextExecutor
-  ): Router = {
+  ): Route = {
     // Создаём DAO
-    val roleDao: RoleDao     = new RoleDaoSlick(db)
-    val authorDao: AuthorDao = new AuthorDaoSlick(db)
-    val bookDao: BookDao     = new BookDaoSlick(db)
-    val userDao: UserDao     = new UserDaoSlick(db)
-    val recordDao: RecordDao = new RecordDaoSlick(db)
+    val roleDao   = new RoleDaoSlick(db)
+    val authorDao = new AuthorDaoSlick(db)
+    val bookDao   = new BookDaoSlick(db)
+    val userDao   = new UserDaoSlick(db)
+    val recordDao = new RecordDaoSlick(db)
 
     if (profile.equals("initial")) {
       // Инициализируем базу
@@ -38,13 +44,19 @@ object Main {
     }
 
     // Создаём Router
-    val authorRoute  = new AuthorRouter(pathPrefix, new AuthorServiceImpl(authorDao))
-    val bookRouter   = new BookRouter(pathPrefix, new BookServiceImpl(bookDao))
-    val recordRouter = new RecordRouter(pathPrefix, new RecordServiceImpl(recordDao))
-    val roleRouter   = new RoleRouter(pathPrefix, new RoleServiceImpl(roleDao))
-    val userRouter   = new UserRouter(pathPrefix, new UserServiceImpl(userDao))
+    val routers = List(
+      new AuthorRouter(pathPrefix, new ServiceImpl(authorDao)),
+      new BookRouter(pathPrefix, new ServiceImpl(bookDao)),
+      new RecordRouter(pathPrefix, new ServiceImpl(recordDao)),
+      new RoleRouter(pathPrefix, new ServiceImpl(roleDao)),
+      new UserRouter(pathPrefix, new ServiceImpl(userDao))
+    )
 
-    new Router(authorRoute, bookRouter, recordRouter, roleRouter, userRouter)
+    val endpoints: List[Endpoint[_, _, _, _]] = routers.flatMap(_.endpoints)
+    val openApiDocs: OpenAPI                  = endpoints.toOpenAPI("Books Library", "1.0.0")
+    val openApiYml: String                    = openApiDocs.toYaml
+
+    concat(routers.map(_.route) ::: List(new SwaggerAkka(openApiYml).routes): _*)
   }
 
   def main(args: Array[String]): Unit = {
@@ -64,7 +76,7 @@ object Main {
     Using.resource(Database.forConfig("db")) { db =>
       val bindingFuture = Http()
         .newServerAt(host, port)
-        .bind(createRoute(pathPrefix, profile, db).route)
+        .bind(createRoute(pathPrefix, profile, db))
 
       println(s"Server online at http://$host:$port/")
       println(s"Docs at: http://$host:$port/docs")

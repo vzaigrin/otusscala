@@ -1,14 +1,13 @@
 package ru.otus.sc.dao
 
 import java.util.UUID
-
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.{be, convertToAnyShouldWrapper}
-import ru.otus.sc.model.author.Author
+import ru.otus.sc.model.Author
 
 abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures {
-  def getDao(): AuthorDao
+  def getDao: Dao[Author]
   def destroyDao(): Unit
 
   implicit val author1: Author = Author(None, "Лев", "Толстой")
@@ -18,8 +17,8 @@ abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
   name - {
     "createAuthor" - {
       "create one author" in {
-        val dao: AuthorDao        = getDao()
-        val createdAuthor: Author = dao.createAuthor(author1).futureValue
+        val dao: Dao[Author]      = getDao
+        val createdAuthor: Author = dao.create(author1).futureValue
 
         createdAuthor.id shouldNot be(None)
         createdAuthor shouldBe author1.copy(id = createdAuthor.id)
@@ -28,16 +27,16 @@ abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "getAuthor" - {
       "get unknown author" in {
-        val dao: AuthorDao            = getDao()
-        val gotAuthor: Option[Author] = dao.getAuthor(UUID.randomUUID()).futureValue
+        val dao: Dao[Author]          = getDao
+        val gotAuthor: Option[Author] = dao.get(UUID.randomUUID()).futureValue
 
         gotAuthor shouldBe None
       }
 
       "get known author" in {
-        val dao: AuthorDao            = getDao()
-        val createdAuthor: Author     = dao.createAuthor(author1).futureValue
-        val gotAuthor: Option[Author] = dao.getAuthor(createdAuthor.id.get).futureValue
+        val dao: Dao[Author]          = getDao
+        val createdAuthor: Author     = dao.create(author1).futureValue
+        val gotAuthor: Option[Author] = dao.get(createdAuthor.id.get).futureValue
 
         gotAuthor shouldBe Some(createdAuthor)
       }
@@ -45,10 +44,10 @@ abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "updateAuthor" - {
       "change name" in {
-        val dao: AuthorDao        = getDao()
-        val createdAuthor: Author = dao.createAuthor(author1).futureValue
+        val dao: Dao[Author]      = getDao
+        val createdAuthor: Author = dao.create(author1).futureValue
         val updatedAuthor: Option[Author] =
-          dao.updateAuthor(createdAuthor.copy(firstName = "Updated")).futureValue
+          dao.update(createdAuthor.copy(firstName = "Updated")).futureValue
 
         updatedAuthor shouldNot be(Some(createdAuthor))
         updatedAuthor shouldBe Some(createdAuthor.copy(firstName = "Updated"))
@@ -57,21 +56,21 @@ abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "deleteAuthor" - {
       "delete unknown author" in {
-        val dao: AuthorDao = getDao()
-        dao.createAuthor(author1).futureValue
-        dao.createAuthor(author2).futureValue
-        dao.createAuthor(author3).futureValue
-        val deletedAuthor: Option[Author] = dao.deleteAuthor(UUID.randomUUID()).futureValue
+        val dao: Dao[Author] = getDao
+        dao.create(author1).futureValue
+        dao.create(author2).futureValue
+        dao.create(author3).futureValue
+        val deletedAuthor: Option[Author] = dao.delete(UUID.randomUUID()).futureValue
 
         deletedAuthor shouldBe None
       }
 
       "delete known author" in {
-        val dao: AuthorDao = getDao()
-        dao.createAuthor(author1).futureValue
-        val createdAuthor: Author = dao.createAuthor(author2).futureValue
-        dao.createAuthor(author3).futureValue
-        val deletedAuthor: Option[Author] = dao.deleteAuthor(createdAuthor.id.get).futureValue
+        val dao: Dao[Author] = getDao
+        dao.create(author1).futureValue
+        val createdAuthor: Author = dao.create(author2).futureValue
+        dao.create(author3).futureValue
+        val deletedAuthor: Option[Author] = dao.delete(createdAuthor.id.get).futureValue
 
         deletedAuthor shouldBe Some(createdAuthor)
       }
@@ -79,19 +78,20 @@ abstract class AuthorDaoTest(name: String) extends AnyFreeSpec with ScalaFutures
 
     "findAuthor" - {
       "findByLastName" in {
-        val dao: AuthorDao = getDao()
-        dao.createAuthor(author1).futureValue
-        val createdAuthor: Author = dao.createAuthor(author2).futureValue
-        dao.createAuthor(author3).futureValue
-        val foundAuthor: Option[Author] = dao.findByLastName("Достоевский").futureValue.headOption
+        val dao: Dao[Author] = getDao
+        dao.create(author1).futureValue
+        val createdAuthor: Author = dao.create(author2).futureValue
+        dao.create(author3).futureValue
+        val foundAuthor: Option[Author] =
+          dao.findByField("lastname", "Достоевский").futureValue.headOption
 
         foundAuthor shouldBe Some(createdAuthor)
       }
 
       "findAll" in {
-        val dao: AuthorDao = getDao()
+        val dao: Dao[Author] = getDao
         val createdAuthors: Seq[Author] =
-          Seq(author1, author2, author3).map(dao.createAuthor).map(_.futureValue)
+          Seq(author1, author2, author3).map(dao.create).map(_.futureValue)
         val foundAuthors: Seq[Author] = dao.findAll().futureValue
 
         foundAuthors.toSet shouldBe createdAuthors.toSet

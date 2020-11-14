@@ -2,8 +2,7 @@ package ru.otus.sc.dao.impl.book
 
 import java.util.UUID
 
-import ru.otus.sc.model.author.Author
-import ru.otus.sc.model.book.Book
+import ru.otus.sc.model.{Author, Book}
 
 case class BookRow(
     id: Option[UUID],
@@ -11,7 +10,7 @@ case class BookRow(
     published: Int,
     pages: Int
 ) {
-  def toBook(authors: Set[Author]): Book = Book(id, title, authors, published, pages)
+  def toBook(authors: Set[UUID]): Book = Book(id, title, authors, published, pages)
 }
 
 object BookRow extends ((Option[UUID], String, Int, Int) => BookRow) {
