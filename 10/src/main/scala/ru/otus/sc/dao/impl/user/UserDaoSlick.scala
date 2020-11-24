@@ -3,7 +3,7 @@ package ru.otus.sc.dao.impl.user
 import java.util.UUID
 import ru.otus.sc.dao.Dao
 import ru.otus.sc.dao.impl.Slick.{records, users, users_to_roles}
-import ru.otus.sc.model.{Entity, User}
+import ru.otus.sc.model.User
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}

@@ -1,19 +1,29 @@
 package ru.otus.sc.route.impl
 
 import java.util.UUID
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Directives.concat
 import akka.http.scaladsl.server.Route
 import io.circe.generic.auto._
+import ru.otus.sc.auth.model.AuthRequest
 import ru.otus.sc.model._
 import ru.otus.sc.route._
 import ru.otus.sc.service.Service
 import sttp.tapir._
 import sttp.tapir.json.circe._
-import sttp.tapir.server.akkahttp.RichAkkaHttpEndpoint
+import sttp.tapir.server.ServerEndpoint
+import sttp.tapir.server.akkahttp.RichAkkaHttpServerEndpoint
 import scala.concurrent.Future
 
-class RecordRouter(pathPrefix: String, service: Service[Record])
-    extends BaseRouter(pathPrefix: String, service: Service[Record]) {
+class RecordRouter(
+    pathPrefix: String,
+    service: Service[Record],
+    authSystem: ActorSystem[AuthRequest]
+) extends BaseRouter(
+      pathPrefix: String,
+      service: Service[Record],
+      authSystem: ActorSystem[AuthRequest]
+    ) {
   private val pathSuffix: String = "record"
 
   override def endpoints: List[Endpoint[_, _, _, _]] =
@@ -29,43 +39,59 @@ class RecordRouter(pathPrefix: String, service: Service[Record])
   override def route: Route =
     concat(createRoute, getRoute, findAllRoute, findByFieldRoute, updateRoute(), deleteRoute())
 
-  private val baseEndpoint: Endpoint[Unit, ErrorInfo, Unit, Any] =
+  private val baseEndpoint: Endpoint[String, ErrorInfo, Unit, Any] =
     startEndpoint
       .tag(pathSuffix)
       .in(pathSuffix)
-      .errorOut(jsonBody[ErrorInfo])
 
   // Создаём сущность
-  def createEndpoint: Endpoint[Record, ErrorInfo, Record, Any] =
+  def createEndpoint: Endpoint[(String, Record), ErrorInfo, Record, Any] =
     baseEndpoint.post
       .description("Создаём запись")
       .in(jsonBody[Record])
       .out(jsonBody[Record])
 
-  def createRoute: Route = createEndpoint.toRoute(create)
+  val createEndpointWithLogic: ServerEndpoint[(String, Record), ErrorInfo, Record, Any, Future] =
+    createEndpoint
+      .serverLogicPart(auth)
+      .andThen { case (_, record) => create(record) }
+
+  def createRoute: Route = createEndpointWithLogic.toRoute
 
   // Выводим сущность по id
-  def getEndpoint: Endpoint[UUID, ErrorInfo, Record, Any] =
+  def getEndpoint: Endpoint[(String, UUID), ErrorInfo, Record, Any] =
     baseEndpoint.get
       .description("Вывод записи по Id")
       .in(path[UUID])
       .out(jsonBody[Record])
 
-  def getRoute: Route = getEndpoint.toRoute(get)
+  val getEndpointWithLogic: ServerEndpoint[(String, UUID), ErrorInfo, Record, Any, Future] =
+    getEndpoint
+      .serverLogicPart(auth)
+      .andThen { case (_, id) => get(id) }
+
+  def getRoute: Route = getEndpointWithLogic.toRoute
 
   // Выводим все сущности
-  def findAllEndpoint: Endpoint[Unit, ErrorInfo, Seq[Record], Any] =
+  def findAllEndpoint: Endpoint[String, ErrorInfo, Seq[Record], Any] =
     baseEndpoint.get
       .description("Вывод всех записей")
       .out(jsonBody[Seq[Record]])
 
-  def findAllRoute: Route = findAllEndpoint.toRoute(_ => find(Seq()))
+  val findAllEndpointWithLogic: ServerEndpoint[String, ErrorInfo, Seq[Record], Any, Future] =
+    findAllEndpoint
+      .serverLogicPart(auth)
+      .andThen { _ => find(Seq()) }
+
+  def findAllRoute: Route = findAllEndpointWithLogic.toRoute
 
   // Выводим все сущности или ищем по параметрам
-  def findByFieldEndpoint
-      : Endpoint[(Option[String], Option[String], Option[String], Option[String]), ErrorInfo, Seq[
-        Record
-      ], Any] =
+  def findByFieldEndpoint: Endpoint[
+    (String, Option[String], Option[String], Option[String], Option[String]),
+    ErrorInfo,
+    Seq[Record],
+    Any
+  ] =
     baseEndpoint.get
       .description(
         "Вывод всех записей или поиск по параметрам: " +
@@ -81,6 +107,17 @@ class RecordRouter(pathPrefix: String, service: Service[Record])
       .in(query[Option[String]]("return"))
       .out(jsonBody[Seq[Record]])
 
+  val findByFieldEndpointWithLogic: ServerEndpoint[
+    (String, Option[String], Option[String], Option[String], Option[String]),
+    ErrorInfo,
+    Seq[Record],
+    Any,
+    Future
+  ] =
+    findByFieldEndpoint
+      .serverLogicPart(auth)
+      .andThen { case (_, query) => findByField(query) }
+
   def findByField(
       query: (Option[String], Option[String], Option[String], Option[String])
   ): Future[Either[ErrorInfo, Seq[Record]]] = {
@@ -91,23 +128,33 @@ class RecordRouter(pathPrefix: String, service: Service[Record])
     find(qSeq)
   }
 
-  def findByFieldRoute: Route = findByFieldEndpoint.toRoute(findByField)
+  def findByFieldRoute: Route = findByFieldEndpointWithLogic.toRoute
 
   // Обновляем сущность
-  def updateEndpoint(): Endpoint[Record, ErrorInfo, Record, Any] =
+  def updateEndpoint(): Endpoint[(String, Record), ErrorInfo, Record, Any] =
     baseEndpoint.put
       .description("Обновляем запись")
       .in(jsonBody[Record])
       .out(jsonBody[Record])
 
-  def updateRoute(): Route = updateEndpoint().toRoute(update)
+  val updateEndpointWithLogic: ServerEndpoint[(String, Record), ErrorInfo, Record, Any, Future] =
+    updateEndpoint()
+      .serverLogicPart(auth)
+      .andThen { case (_, record) => update(record) }
+
+  def updateRoute(): Route = updateEndpointWithLogic.toRoute
 
   // Удаляем сущность по Id
-  def deleteEndpoint(): Endpoint[UUID, ErrorInfo, Record, Any] =
+  def deleteEndpoint(): Endpoint[(String, UUID), ErrorInfo, Record, Any] =
     baseEndpoint.delete
       .description("Удаляем запись по Id")
       .in(path[UUID])
       .out(jsonBody[Record])
 
-  def deleteRoute(): Route = deleteEndpoint().toRoute(delete)
+  val deleteEndpointWithLogic: ServerEndpoint[(String, UUID), ErrorInfo, Record, Any, Future] =
+    deleteEndpoint()
+      .serverLogicPart(auth)
+      .andThen { case (_, id) => delete(id) }
+
+  def deleteRoute(): Route = deleteEndpointWithLogic.toRoute
 }

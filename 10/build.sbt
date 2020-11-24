@@ -4,9 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.13.3"
 
-lazy val root = (project in file("."))
-  .settings(scalacOptions += "-deprecation")
-//  .settings(scalacOptions += "-Ypartial-unification")
+lazy val root = (project in file(".")).settings(scalacOptions += "-deprecation")
 
 parallelExecution in Test := false
 
@@ -17,6 +15,7 @@ lazy val akkaVersion             = "2.6.10"
 lazy val akkaHttpPlayJsonVersion = "1.34.0"
 lazy val PlayJsonVersion         = "2.9.0"
 lazy val tapirVersion            = "0.17.0-M2"
+val circeVersion                 = "0.12.3"
 
 libraryDependencies ++= Seq(
   "com.typesafe"                 % "config"                     % "1.4.0",
@@ -35,9 +34,13 @@ libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"         % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml"   % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % tapirVersion,
-  "org.scalatest"               %% "scalatest"                  % "3.2.0"   % Test,
-  "org.scalamock"               %% "scalamock"                  % "5.0.0"   % Test,
-  "org.scalacheck"              %% "scalacheck"                 % "1.14.3"  % Test,
-  "org.scalatestplus"           %% "scalacheck-1-14"            % "3.2.0.0" % Test,
-  "com.github.alexarchambault"  %% "scalacheck-shapeless_1.14"  % "1.2.3"   % Test
+//  "io.circe"                    %% "circe-core"                 % circeVersion,
+//  "io.circe"                    %% "circe-generic"              % circeVersion,
+//  "io.circe"                    %% "circe-parser"               % circeVersion,
+  "com.pauldijou"              %% "jwt-circe"                 % "4.2.0",
+  "org.scalatest"              %% "scalatest"                 % "3.2.0"   % Test,
+  "org.scalamock"              %% "scalamock"                 % "5.0.0"   % Test,
+  "org.scalacheck"             %% "scalacheck"                % "1.14.3"  % Test,
+  "org.scalatestplus"          %% "scalacheck-1-14"           % "3.2.0.0" % Test,
+  "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.3"   % Test
 )
