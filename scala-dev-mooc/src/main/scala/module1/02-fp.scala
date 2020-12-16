@@ -1,6 +1,6 @@
 package module1
 
-import module1.list.List.Cons
+import module1.list.List.{::, Cons, Nil}
 
 import scala.annotation.tailrec
 
@@ -83,9 +83,8 @@ import scala.annotation.tailrec
    *
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
-  def zip[A](option1: Option[A], option2: Option[A]): Option[(A, A)] = {
+  def zip[A](option1: Option[A], option2: Option[A]): Option[(A, A)] =
     Option.Some((option1.get, option2.get))
-  }
 
 
   /**
@@ -162,7 +161,7 @@ import scala.annotation.tailrec
    object List{
     case object Nil extends List[Nothing]
     case class ::[A](head: A, tail: List[A]) extends List[A]
-    val Cons: ::.type = ::
+    val Cons = ::
 
     def apply[T](arg: T*): List[T] = {
      var l: List[T] = List.Nil
@@ -177,24 +176,54 @@ import scala.annotation.tailrec
     *
     * Реализовать метод конс :: который позволит добавлять элемент в голову списка
     */
+   def ::[A](head: A, tail: List[A]): List[A] = Cons(head, tail)
 
 
    /**
     *
     * Реализовать конструктор, для создания списка n элементов
     */
+   def List[A](arg: A*): List[A] = {
+     var l: List[A] = List.Nil
+     arg.foreach(el => l = el :: l)
+     l
+   }
 
 
    /**
     *
     * Реализовать метод mkString который позволит красиво представить список в виде строки
     */
+   def mkString[A](l: List[A], sep: String): String = {
+     @tailrec
+     def loop(list: List[A], acc: StringBuilder): StringBuilder = {
+       list match {
+         case List.Nil => acc
+         case h :: Nil => acc.append(s"$h")
+         case h :: t => loop(t, acc.append(s"$h$sep"))
+       }
+     }
+     loop(l, new StringBuilder()).toString()
+   }
 
 
    /**
     *
     * Реализовать метод reverse который позволит заменить порядок элементов в списке на противоположный
     */
+   def append[T](list: List[T], last: T): List[T] = {
+     list match {
+       case h :: List.Nil => Cons(h, List[T](last))
+       case h :: t => Cons(h, append(t, last))
+     }
+   }
+
+   def reverse[A](list: List[A]): List[A] = {
+     list match {
+       case h :: Nil => List[A](h)
+       case h :: t => append(reverse(t), h)
+     }
+   }
 
 
    /**
@@ -202,6 +231,12 @@ import scala.annotation.tailrec
     * Написать функцию incList котрая будет принимать список Int и возвращать список,
     * где каждый элемент будет увеличен на 1
     */
+   def incList(list: List[Int]): List[Int] = {
+     list match {
+       case h :: List.Nil => List[Int](h + 1)
+       case h :: t => Cons(h + 1, incList(t))
+     }
+   }
 
 
    /**
@@ -209,13 +244,23 @@ import scala.annotation.tailrec
     * Написать функцию shoutString котрая будет принимать список String и возвращать список,
     * где к каждому элементу будет добавлен префикс в виде '!'
     */
+   def shoutString(list: List[String]): List[String] = {
+     list match {
+       case h :: List.Nil => List[String]("!" + h)
+       case h :: t => Cons("!" + h, shoutString(t))
+     }
+   }
 
 
    /**
     *
     * Реализовать метод для списка который будет применять некую ф-цию к элементам данного списка
     */
-
-
+   def map[T](list: List[T], f: T => T): List[T] = {
+     list match {
+       case h :: List.Nil => List[T](f(h))
+       case h :: t => Cons(f(h), map(t, f))
+     }
+   }
 
  }
