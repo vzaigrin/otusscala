@@ -40,28 +40,52 @@ import scala.annotation.tailrec
    *
    * Реализовать метод printIfAny, который будет печатать значение, если оно есть
    */
+  def printIfAny[A](option: Option[A]): Unit = {
+    if (!option.isEmpty) println(option.get)
+  }
+
 
   /**
    *
    * реализовать метод orElse который будет возвращать другой Option, если данный пустой
    */
+  def orElse[A](option1: Option[A], option2: Option[A]): Option[A] = {
+    if (option1.isEmpty) option2
+    else option1
+  }
 
 
   /**
    *
    * Реализовать метод isEmpty, который будет возвращать true если Option не пуст и false в противном случае
    */
+  def isEmpty[A](option: Option[A]): Boolean = {
+    option match {
+      case Option.Some(_) => false
+      case Option.None => true
+    }
+  }
 
 
   /**
    *
    * Реализовать метод get, который будет возвращать значение
    */
+  def get[A](option: Option[A]): A = {
+    option match {
+      case Option.Some(v) => v
+      case Option.None => throw new Exception("get on empty Option")
+    }
+  }
+
 
   /**
    *
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
+  def zip[A](option1: Option[A], option2: Option[A]): Option[(A, A)] = {
+    Option.Some((option1.get, option2.get))
+  }
 
 
   /**
@@ -69,6 +93,10 @@ import scala.annotation.tailrec
    * Реализовать метод filter, который будет возвращать не пустой Option
    * в случае если исходный не пуст и предикат от значения = true
    */
+  def filter[A](option: Option[A], p: Option[A] => Boolean): Option[A] = {
+    if (!option.isEmpty && p(option)) option
+    else Option.None
+  }
 
  }
 
@@ -119,6 +147,7 @@ import scala.annotation.tailrec
     def mkString(sep: String): String = {
        import List._
 
+      @tailrec
       def loop(l: List[A], acc: StringBuilder): StringBuilder = {
         l match {
          case List.Nil => acc
@@ -133,7 +162,7 @@ import scala.annotation.tailrec
    object List{
     case object Nil extends List[Nothing]
     case class ::[A](head: A, tail: List[A]) extends List[A]
-    val Cons = ::
+    val Cons: ::.type = ::
 
     def apply[T](arg: T*): List[T] = {
      var l: List[T] = List.Nil
@@ -142,7 +171,7 @@ import scala.annotation.tailrec
     }
    }
 
-   val list = 1 :: List.Nil
+   val list: List[Int] = 1 :: List.Nil
 
    /**
     *
