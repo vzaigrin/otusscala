@@ -1,8 +1,21 @@
 package homeworks.collections
 
-import homeworks.HomeworksUtils.TaskSyntax
-
 object task_caesar {
+
+  // Вспомогательная функция
+  // Сначала проверяем к какому диапазону относится символ
+  // Потом смещаем символ в этом диапазоне
+  // Если символ не пренадлежит ни одну из даипазонов, не меняем его
+  def rotate(word: String, offset: Int): String = {
+    val ranges = List('A' to 'Z', 'a' to 'z', 'А' to 'Я', 'а' to 'я')
+
+    word.map(c => (c, ranges.filter(_.contains(c)))).map { cl =>
+      cl._2.headOption match {
+        case Some(r) => r((cl._1 - r.head + (offset % r.size) + r.size) % r.size)
+        case None => cl._1
+      }
+    }.mkString
+  }
 
   /**
    * В данном задании Вам предлагается реализовать функции,
@@ -17,15 +30,13 @@ object task_caesar {
    * @param offset сдвиг вперёд по алфавиту
    * @return зашифрованное слово
    */
-  def encrypt(word: String, offset: Int): String =
-    task"Реализуйте метод `encrypt`"()
+  def encrypt(word: String, offset: Int): String = rotate(word, offset)
 
   /**
    * @param cipher шифр, который необходимо расшифровать
    * @param offset сдвиг вперёд по алфавиту
    * @return расшифрованное слово
    */
-  def decrypt(cipher: String, offset: Int): String =
-    task"Реализуйте метод `decrypt`"()
+  def decrypt(cipher: String, offset: Int): String = rotate(cipher, -offset)
 
 }
