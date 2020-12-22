@@ -1,0 +1,9 @@
+[0m[[0m[0mdebug[0m] [0m[0mAcquiring lock on file /home/vadim/Projects/otusscala/scala-mooc/project/target/.sbt-compilation-infos/scala-mooc-compile/.sbt-idea-lock ...[0m
+[0m[[0m[33mwarn[0m] [0m[0m/home/vadim/Projects/otusscala/scala-mooc/src/main/scala/lectures/futures/FutureRecover.scala:40:24: adaptation of an empty argument list by inserting () is deprecated: this is unlikely to be what you want[0m
+[0m[[0m[33mwarn[0m] [0m[0m        signature: Future.successful[T](result: T): scala.concurrent.Future[T][0m
+[0m[[0m[33mwarn[0m] [0m[0m  given arguments: <none>[0m
+[0m[[0m[33mwarn[0m] [0m[0m after adaptation: Future.successful((): Unit)[0m
+[0m[[0m[33mwarn[0m] [0m[0m      Future.successful()[0m
+[0m[[0m[33mwarn[0m] [0m[0m                       ^[0m
+[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
+[0m[[0m[0mdebug[0m] [0m[0mReleasing lock on file /home/vadim/Projects/otusscala/scala-mooc/project/target/.sbt-compilation-infos/scala-mooc-compile/.sbt-idea-lock.[0m
