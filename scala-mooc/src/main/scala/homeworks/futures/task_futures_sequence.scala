@@ -2,7 +2,7 @@ package homeworks.futures
 
 import homeworks.HomeworksUtils.TaskSyntax
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object task_futures_sequence {
 
@@ -12,12 +12,14 @@ object task_futures_sequence {
    * возвращающую все успешные и не успешные результаты.
    * Возвращаемое тип функции - кортеж из двух списков,
    * в левом хранятся результаты успешных выполнений,
-   * в правово результаты неуспешных выполнений
+   * в правово результаты неуспешных выполнений.
+   * Не допускается использование методов объекта Await и мутабельных переменных var
    */
   /**
    * @param futures список асинхронных задач
    * @return асинхронную задачу с кортежом из двух списков
    */
-  def fullSequence[A](futures: List[Future[A]]): Future[(List[A], List[Throwable])] =
-    task"Реализуйте метод `encrypt`"()
+  def fullSequence[A](futures: List[Future[A]])
+                     (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] =
+    task"Реализуйте метод `fullSequence`"()
 }
