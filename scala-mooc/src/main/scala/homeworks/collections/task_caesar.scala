@@ -9,11 +9,10 @@ object task_caesar {
   def rotate(word: String, offset: Int): String = {
     val ranges = List('A' to 'Z', 'a' to 'z', 'А' to 'Я', 'а' to 'я')
 
-    word.map(c => (c, ranges.filter(_.contains(c)))).map { cl =>
-      cl._2.headOption match {
-        case Some(r) => r((cl._1 - r.head + (offset % r.size) + r.size) % r.size)
-        case None => cl._1
-      }
+    word.map(c => (c, ranges.find(_.contains(c)))).map { cl => cl._2 match {
+      case Some(r) => r((cl._1 - r.head + (offset % r.size) + r.size) % r.size)
+      case None => cl._1
+    }
     }.mkString
   }
 
