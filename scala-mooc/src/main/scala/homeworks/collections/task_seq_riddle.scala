@@ -20,6 +20,7 @@ object task_seq_riddle {
    * */
 
 /*
+  // Вариант 1
   def nextLine(currentLine: List[Int]): List[Int] = {
     // Вспомогательная функция
     // Накапливает количество повторов "головы" списка
@@ -36,6 +37,8 @@ object task_seq_riddle {
     else acc(List(), (1, currentLine.head), currentLine.tail)
   }
 */
+/*
+  // Вариант 2
   def nextLine(currentLine: List[Int]): List[Int] = {
     currentLine.headOption match {
       case None => List()
@@ -45,6 +48,18 @@ object task_seq_riddle {
           else (acc._1 ++ List(acc._2._1, acc._2._2), (1, x))
         }
         fold._1 ++ List(fold._2._1, fold._2._2)
+    }
+  }
+*/
+  // Вариант 3
+  def nextLine(currentLine: List[Int]): List[Int] = {
+    currentLine.headOption match {
+      case None => List()
+      case Some(head) =>
+        currentLine.tail.foldLeft(List(head, 1)) { (acc, x) =>
+          if (acc.head == x) acc.head :: (acc.tail.head + 1) :: acc.tail.tail
+          else x :: 1 :: acc
+        }.reverse
     }
   }
 
