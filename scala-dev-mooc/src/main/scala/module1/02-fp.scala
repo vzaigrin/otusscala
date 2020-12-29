@@ -1,6 +1,6 @@
 package module1
 
-import module1.list.List.Cons
+import module1.list.List.{::, Cons, Nil}
 
 import scala.annotation.tailrec
 
@@ -26,6 +26,15 @@ import scala.annotation.tailrec
        case Option.Some(v) => v
        case Option.None => throw new Exception("get on empty Option")
       }
+
+    /**
+     *
+     * реализовать метод orElse который будет возвращать другой Option, если данный пустой
+     */
+    def orElse[B >: A](that: => Option[B]): Option[B] = this match {
+      case Option.Some(_) => this
+      case Option.None => that
+    }
    }
 
    object Option {
@@ -34,34 +43,46 @@ import scala.annotation.tailrec
    }
 
 
-
-
   /**
    *
    * Реализовать метод printIfAny, который будет печатать значение, если оно есть
    */
-
-  /**
-   *
-   * реализовать метод orElse который будет возвращать другой Option, если данный пустой
-   */
+  def printIfAny[A](option: Option[A]): Unit = {
+    if (!option.isEmpty) println(option.get)
+  }
 
 
   /**
    *
    * Реализовать метод isEmpty, который будет возвращать true если Option не пуст и false в противном случае
    */
+  def isEmpty[A](option: Option[A]): Boolean = {
+    option match {
+      case Option.Some(_) => false
+      case Option.None => true
+    }
+  }
 
 
   /**
    *
    * Реализовать метод get, который будет возвращать значение
    */
+  def get[A](option: Option[A]): A = {
+    option match {
+      case Option.Some(v) => v
+      case Option.None => throw new Exception("get on empty Option")
+    }
+  }
+
 
   /**
    *
    * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
    */
+  def zip[A](option1: Option[A], option2: Option[A]): Option[(A, A)] =
+    if (!option1.isEmpty && !option2.isEmpty) Option.Some((option1.get, option2.get))
+    else Option.None
 
 
   /**
@@ -69,6 +90,9 @@ import scala.annotation.tailrec
    * Реализовать метод filter, который будет возвращать не пустой Option
    * в случае если исходный не пуст и предикат от значения = true
    */
+  def filter[A](option: Option[A], p: A => Boolean): Option[A] =
+    if (!option.isEmpty && p(option.get)) option
+    else Option.None
 
  }
 
@@ -119,6 +143,7 @@ import scala.annotation.tailrec
     def mkString(sep: String): String = {
        import List._
 
+      @tailrec
       def loop(l: List[A], acc: StringBuilder): StringBuilder = {
         l match {
          case List.Nil => acc
@@ -142,30 +167,56 @@ import scala.annotation.tailrec
     }
    }
 
-   val list = 1 :: List.Nil
+   val list: List[Int] = 1 :: List.Nil
 
    /**
     *
     * Реализовать метод конс :: который позволит добавлять элемент в голову списка
     */
+   def ::[A](head: A, tail: List[A]): List[A] = Cons(head, tail)
 
 
    /**
     *
     * Реализовать конструктор, для создания списка n элементов
     */
+   def List[A](arg: A*): List[A] = {
+     var l: List[A] = List.Nil
+     arg.foreach(el => l = el :: l)
+     l
+   }
 
 
    /**
     *
     * Реализовать метод mkString который позволит красиво представить список в виде строки
     */
+   def mkString[A](l: List[A], sep: String): String = {
+     @tailrec
+     def loop(list: List[A], acc: StringBuilder): StringBuilder = {
+       list match {
+         case List.Nil => acc
+         case h :: Nil => acc.append(s"$h")
+         case h :: t => loop(t, acc.append(s"$h$sep"))
+       }
+     }
+     loop(l, new StringBuilder()).toString()
+   }
 
 
    /**
     *
     * Реализовать метод reverse который позволит заменить порядок элементов в списке на противоположный
     */
+   def reverse[A](list: List[A]): List[A] = {
+     @tailrec
+     def loop(list: List[A], rev: List[A]): List[A] =
+       list match {
+         case h :: Nil => Cons(h, rev)
+         case h :: tail => loop(tail, Cons(h, rev))
+       }
+     loop(list, List[A]())
+   }
 
 
    /**
@@ -173,20 +224,28 @@ import scala.annotation.tailrec
     * Написать функцию incList котрая будет принимать список Int и возвращать список,
     * где каждый элемент будет увеличен на 1
     */
-
+   def incList(list: List[Int]): List[Int] = map(list, (_: Int) + 1)
 
    /**
     *
     * Написать функцию shoutString котрая будет принимать список String и возвращать список,
     * где к каждому элементу будет добавлен префикс в виде '!'
     */
+   def shoutString(list: List[String]): List[String] = map(list, "!" + (_: String))
 
 
    /**
     *
     * Реализовать метод для списка который будет применять некую ф-цию к элементам данного списка
     */
-
-
+   def map[T](list: List[T], f: T => T): List[T] = {
+     @tailrec
+     def loop(left: List[T], right: List[T]): List[T] =
+       left match {
+         case h :: List.Nil => Cons(f(h), right)
+         case h :: tail => loop(tail, Cons(f(h), right))
+       }
+     reverse(loop(list, List[T]()))
+   }
 
  }
