@@ -2,7 +2,7 @@ package ru.otus.sc.dao.impl.role
 
 import java.util.UUID
 
-import ru.otus.sc.model.role.Role
+import ru.otus.sc.model.Role
 
 case class RoleRow(
     id: Option[UUID],

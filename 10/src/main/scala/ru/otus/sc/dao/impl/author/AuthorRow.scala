@@ -2,7 +2,7 @@ package ru.otus.sc.dao.impl.author
 
 import java.util.UUID
 
-import ru.otus.sc.model.author.Author
+import ru.otus.sc.model.Author
 
 case class AuthorRow(
     id: Option[UUID],

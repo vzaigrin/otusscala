@@ -5,6 +5,8 @@ info:
 paths:
   /api/author:
     get:
+      tags:
+      - author
       description: Вывод всех авторов
       operationId: getApiAuthor
       responses:
@@ -19,10 +21,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     put:
+      tags:
+      - author
       description: Обновляем автора
       operationId: putApiAuthor
       requestBody:
@@ -41,10 +47,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     post:
+      tags:
+      - author
       description: Создаём автора
       operationId: postApiAuthor
       requestBody:
@@ -63,12 +73,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/author/{p1}:
     get:
-      description: Вывод конкретного автора по Id
+      tags:
+      - author
+      description: Вывод автора по Id
       operationId: getApiAuthorP1
       parameters:
       - name: p1
@@ -86,10 +100,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     delete:
+      tags:
+      - author
       description: Удаляем автора по Id
       operationId: deleteApiAuthorP1
       parameters:
@@ -108,17 +126,27 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/author/find:
     get:
-      description: Поиск авторов по фамилии
+      tags:
+      - author
+      description: 'Вывод всех авторов или поиск по параметрам: ''firstname'' - имя,
+        ''lastname'' - фамилия'
       operationId: getApiAuthorFind
       parameters:
+      - name: firstname
+        in: query
+        required: false
+        schema:
+          type: string
       - name: lastname
         in: query
-        required: true
+        required: false
         schema:
           type: string
       responses:
@@ -133,12 +161,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/book:
     get:
-      description: Вывод всех книги
+      tags:
+      - book
+      description: Вывод всех книг
       operationId: getApiBook
       responses:
         '200':
@@ -152,10 +184,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     put:
+      tags:
+      - book
       description: Обновляем книгу
       operationId: putApiBook
       requestBody:
@@ -174,10 +210,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     post:
+      tags:
+      - book
       description: Создаём книгу
       operationId: postApiBook
       requestBody:
@@ -196,12 +236,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/book/{p1}:
     get:
-      description: Вывод конкретной книги по Id
+      tags:
+      - book
+      description: Вывод книги по Id
       operationId: getApiBookP1
       parameters:
       - name: p1
@@ -219,10 +263,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     delete:
+      tags:
+      - book
       description: Удаляем книгу по Id
       operationId: deleteApiBookP1
       parameters:
@@ -241,14 +289,39 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/book/find:
     get:
-      description: 'Поиск книг по параметрам: ''title'' - название, ''authorId'' -
-        Id автора, ''year'' - год издания, ''pages'' - кол-во страниц'
+      tags:
+      - book
+      description: 'Вывод всех книг или поиск по параметрам: ''title'' - название,
+        ''author'' - Id автора, ''published'' - год издания, ''pages'' - кол-во страниц'
       operationId: getApiBookFind
+      parameters:
+      - name: title
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: author
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: published
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: pages
+        in: query
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: ''
@@ -261,12 +334,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/record:
     get:
-      description: Вывод всех записи
+      tags:
+      - record
+      description: Вывод всех записей
       operationId: getApiRecord
       responses:
         '200':
@@ -280,10 +357,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     put:
+      tags:
+      - record
       description: Обновляем запись
       operationId: putApiRecord
       requestBody:
@@ -302,10 +383,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     post:
+      tags:
+      - record
       description: Создаём запись
       operationId: postApiRecord
       requestBody:
@@ -324,12 +409,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/record/{p1}:
     get:
-      description: Вывод конкретной записи по Id
+      tags:
+      - record
+      description: Вывод записи по Id
       operationId: getApiRecordP1
       parameters:
       - name: p1
@@ -347,10 +436,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     delete:
+      tags:
+      - record
       description: Удаляем запись по Id
       operationId: deleteApiRecordP1
       parameters:
@@ -369,15 +462,40 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/record/find:
     get:
-      description: 'Поиск книг по параметрам: ''userId'' - Id пользователя, ''bookId''
-        - Id книги, ''getDT'' - yyyyMMddTHHmmss когда книгу взяли, ''returnDT'' -
-        yyyyMMddTHHmmss когда книгу вернули'
+      tags:
+      - record
+      description: 'Вывод всех записей или поиск по параметрам: ''user'' - Id пользователя,
+        ''book'' - Id книги, ''get'' - yyyyMMddTHHmmss когда книгу взяли, ''return''
+        - yyyyMMddTHHmmss когда книгу вернули'
       operationId: getApiRecordFind
+      parameters:
+      - name: user
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: book
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: get
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: return
+        in: query
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: ''
@@ -390,11 +508,15 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/role:
     get:
+      tags:
+      - role
       description: Вывод всех ролей
       operationId: getApiRole
       responses:
@@ -409,10 +531,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     put:
+      tags:
+      - role
       description: Обновляем роль
       operationId: putApiRole
       requestBody:
@@ -431,10 +557,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     post:
+      tags:
+      - role
       description: Создаём роль
       operationId: postApiRole
       requestBody:
@@ -453,12 +583,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/role/{p1}:
     get:
-      description: Вывод конкретной роли по Id
+      tags:
+      - role
+      description: Вывод роли по Id
       operationId: getApiRoleP1
       parameters:
       - name: p1
@@ -476,10 +610,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     delete:
+      tags:
+      - role
       description: Удаляем роль по Id
       operationId: deleteApiRoleP1
       parameters:
@@ -498,17 +636,21 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/role/find:
     get:
-      description: Поиск ролей по имени
+      tags:
+      - role
+      description: 'Вывод всех ролей или поиск по параметру: ''name'' - имя'
       operationId: getApiRoleFind
       parameters:
       - name: name
         in: query
-        required: true
+        required: false
         schema:
           type: string
       responses:
@@ -523,11 +665,15 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/user:
     get:
+      tags:
+      - user
       description: Вывод всех пользователей
       operationId: getApiUser
       responses:
@@ -542,10 +688,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     put:
+      tags:
+      - user
       description: Обновляем пользователя
       operationId: putApiUser
       requestBody:
@@ -564,10 +714,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     post:
+      tags:
+      - user
       description: Создаём пользователя
       operationId: postApiUser
       requestBody:
@@ -586,12 +740,16 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/user/{p1}:
     get:
-      description: Вывод конкретной пользователя по Id
+      tags:
+      - user
+      description: Вывод пользователя по Id
       operationId: getApiUserP1
       parameters:
       - name: p1
@@ -609,10 +767,14 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
     delete:
+      tags:
+      - user
       description: Удаляем пользователя по Id
       operationId: deleteApiUserP1
       parameters:
@@ -631,14 +793,45 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
   /api/user/find:
     get:
-      description: 'Поиск пользователей по параметрам: ''username'' - имя в системе,
-        ''lastname'' - фамилия ''roleId'' - Id роли'
+      tags:
+      - user
+      description: 'Вывод всех пользователей или поиск по параметрам: ''username''
+        - имя в системе, ''firstname'' - имя ''lastname'' - фамилия ''age'' - возраст''role''
+        - Id роли'
       operationId: getApiUserFind
+      parameters:
+      - name: username
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: firstname
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: lastname
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: age
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: ''
@@ -651,9 +844,57 @@ paths:
         default:
           description: ''
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
+  /api/login:
+    post:
+      tags:
+      - login
+      description: Login
+      operationId: postApiLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'
+  /api/logout:
+    post:
+      tags:
+      - logout
+      description: Logout
+      operationId: postApiLogout
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInfo'
+      security:
+      - httpAuth: []
 components:
   schemas:
     Author:
@@ -667,6 +908,32 @@ components:
         firstName:
           type: string
         lastName:
+          type: string
+    ErrorInfo:
+      oneOf:
+      - $ref: '#/components/schemas/BadRequest'
+      - $ref: '#/components/schemas/NotFound'
+      - $ref: '#/components/schemas/Unauthorized'
+    BadRequest:
+      required:
+      - what
+      type: object
+      properties:
+        what:
+          type: string
+    NotFound:
+      required:
+      - what
+      type: object
+      properties:
+        what:
+          type: string
+    Unauthorized:
+      required:
+      - what
+      type: object
+      properties:
+        what:
           type: string
     Book:
       required:
@@ -682,31 +949,40 @@ components:
         authors:
           type: array
           items:
-            $ref: '#/components/schemas/Author'
+            type: string
         published:
           type: integer
         pages:
           type: integer
     Record:
       required:
-      - user
-      - book
+      - userId
+      - bookId
       - getDT
       - returnDT
       type: object
       properties:
         id:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
-        book:
-          $ref: '#/components/schemas/Book'
+        userId:
+          type: string
+        bookId:
+          type: string
         getDT:
           type: string
           format: date-time
         returnDT:
           type: string
           format: date-time
+    Role:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
     User:
       required:
       - userName
@@ -731,13 +1007,25 @@ components:
         roles:
           type: array
           items:
-            $ref: '#/components/schemas/Role'
-    Role:
+            type: string
+    AuthUser:
       required:
-      - name
+      - username
+      - password
       type: object
       properties:
-        id:
+        username:
           type: string
-        name:
+        password:
           type: string
+    AuthToken:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+  securitySchemes:
+    httpAuth:
+      type: http
+      scheme: bearer
